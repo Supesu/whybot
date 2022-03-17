@@ -11,4 +11,5 @@ export interface OnMessageHandler {
 
 export interface ClientInterface {
   connect(): Promise<[string, number]>;
+  say(channel: string, message: string): Promise<[string]>;
 }

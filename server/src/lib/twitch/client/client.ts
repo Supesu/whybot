@@ -8,12 +8,9 @@ import { Logger } from "../../../utils";
 export default class Client implements ClientInterface {
   client: TmiClient;
 
-  constructor(client: TmiClient, onMessage: OnMessageHandler) {
+  constructor(client: TmiClient) {
     this.client = client;
-    Logger.debug("Initalized Client");
-
-    this.client.on("message", onMessage)
-    Logger.debug("Binded Message Handler To Client")
+    Logger.info("Created Client Instance :: Master");
   }
 
   connect(): Promise<[string, number]> {
@@ -22,5 +19,10 @@ export default class Client implements ClientInterface {
 
   say(channel: string, message: string): Promise<[string]> {
     return this.client.say(channel, message);
+  }
+
+  handleMessage(handler: OnMessageHandler) {
+    this.client.on("message", handler);
+    Logger.debug("Binded Message Handler To Client")
   }
 }
