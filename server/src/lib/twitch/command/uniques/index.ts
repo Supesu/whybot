@@ -10,6 +10,7 @@ const fetchUniques = async (): Promise<Unique[]> => {
     unique.endsWith(".unique.js")
   );
 
+
   for await (const u of uniquesToLoad) {
     import(`${__dirname}/base/${u}`).then((unique) => {
       if (unique && unique.default) {

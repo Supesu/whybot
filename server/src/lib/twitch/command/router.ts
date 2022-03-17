@@ -1,86 +1,63 @@
-// Internal Imports
 import { Logger } from "../../../utils";
+import { ClientInterface } from "../client/contract";
 import {
   ChannelT,
-  Flag,
   MessageT,
   Ordinary,
-  ResponseT,
   SelfT,
   Status,
   Unique,
   UserStateT,
 } from "./contract";
-
 import fetchUniques from "./uniques";
+import fetchOrdinaries from "./ordinaries";
 
-// TODO: Inject Router > Inject Router into uniques. > Inject Router into ordinaries
-class Router {
-  private FLAGS: Flag[];
-  private Uniques: Unique[];
-  private Ordinaries: Ordinary[];
+export default class CommandRouter {
+  private client: ClientInterface;
+  private ordinaries: Ordinary[];
+  private uniques: Unique[];
 
-  static createRouter(): Router {
-    const FLAGS = process.env.FLAGS.split(",").map((i: string) => parseInt(i));
-    if (FLAGS.includes(0xe9000)) {
-      Logger.fatal("0xe9000 detected :: Master");
-    }
+  static async create(client: ClientInterface): Promise<CommandRouter> {
+    const uniqueModuleList: Unique[] = await fetchUniques();
+    Logger.debug("Injected Uniques into Router");
+    const orindaryModuleList: Ordinary[] = await fetchOrdinaries();
+    Logger.debug("Injected Ordinaries into Router");
 
-    Logger.info("Created Router Instance :: Master");
-    return new this(FLAGS);
+    Logger.info("Router initalized :: Master");
+    return new this(client, uniqueModuleList, orindaryModuleList);
   }
 
-  constructor(flags: Flag[]) {
-    Logger.debug("Flags injected");
-    this.FLAGS = flags;
-
-    this.Uniques = [];
-    this.loadUniques();
-
-    Logger.debug("Ordinaries Injected");
-    this.Ordinaries = this.loadOrdinaries();
+  constructor(
+    client: ClientInterface,
+    uniques: Unique[],
+    ordinaries: Ordinary[]
+  ) {
+    this.client = client;
+    this.uniques = uniques;
+    this.ordinaries = ordinaries;
   }
 
-  private async loadUniques(): Promise<Unique[]> {
-    const localUniques = await fetchUniques();
-
-    this.Uniques = [];
-    Logger.debug("Uniques Injected");
-
-    return [localUniques];
-  }
-
-  private loadOrdinaries(): Ordinary[] {
-    return [] as Ordinary[];
-  }
-
-  private findOrdinary(message: MessageT): Ordinary {
-    if (this.Ordinaries.length <= 0) {
-      return Logger.fatal("No Ordinaries Loaded");
-    }
-
-    return this.Ordinaries.find((Ordinary) => Ordinary.test(message));
-  }
-
-  private executeUnique(unique: Unique): ResponseT {
-    if (!unique) return Promise.resolve([Status.ERR, "Unique Not Provided"]);
-    return Promise.resolve([Status.OK]);
-  }
-
-  private async executeOrIgnoreOrdinary(
+  public async routeMessage(
     channel: ChannelT,
     userstate: UserStateT,
     message: MessageT,
     self: SelfT
-  ): ResponseT {
-    if (this.FLAGS.includes(0xfe833)) return [Status.ERR, "0xfe833 Detected!"];
+  ): Promise<[Status.OK] | [Status.IGNORE] | [Status.ERR, string]> {
+    const unique = this.findUnique(message);
 
-    const Orindary = this.findOrdinary(message);
+    if (!unique) {
+      const ordinary = this.findOrdinary(message);
 
-    if (!Orindary) return [Status.IGNORE];
+      if (!ordinary) return [Status.IGNORE];
+      else {
+        await ordinary.run(channel, userstate, message, self);
+
+        return [Status.OK];
+      }
+    }
 
     try {
-      await Orindary.run(channel, userstate, message, self);
+      await unique.run(channel, userstate, message, self);
 
       return [Status.OK];
     } catch (e: any) {
@@ -88,20 +65,22 @@ class Router {
     }
   }
 
-  public exectueOrIgnore(
-    channel: ChannelT,
-    userstate: UserStateT,
-    message: MessageT,
-    self: SelfT
-  ): ResponseT {
-    const unique = this.Uniques.find((Unique) => Unique.test(message));
+  private findOrdinary(message: string): any {
+    const Module = this.ordinaries.find((mod) => mod.test(message));
 
-    if (!unique) {
-      return this.executeOrIgnoreOrdinary(channel, userstate, message, self);
-    }
+    if (!Module) return null;
 
-    return this.executeUnique(unique);
+    // Bind client ;
+    return new Module!(this.client);
+  }
+
+  private findUnique(message: string): any {
+    const Module = this.uniques.find((UniqueModule) =>
+      UniqueModule.test(message)
+    );
+
+    if (!Module) return null;
+
+    return new Module!(this.client);
   }
 }
-
-export default Router;

@@ -1,8 +1,7 @@
-import type { UserStateT } from "../../contract";
+import { BaseUnique, UserStateT } from "../../contract";
 import { compileTriggers, Logger } from "../../../../../utils";
 
-// TODO: Inject client.
-export default class TestUnique {
+export default class TestUnique extends BaseUnique {
   static UNIQUE_TRIGGERS = ["{PREFIX}test", "{PREFIX}ping"];
 
   public static test(message: string): boolean {
@@ -12,15 +11,15 @@ export default class TestUnique {
   }
 
   public async run(
-    _channel: string,
+    channel: string,
     _userstate: UserStateT,
     _message: string,
     _self: boolean
   ): Promise<void> {
     Logger.debug("Attempting to trigger test command");
 
+    this.client.say(channel, "pong")
     Logger.debug("Test command has been triggered");
-
     return Promise.resolve();
   }
 }
