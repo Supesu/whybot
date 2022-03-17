@@ -39,7 +39,7 @@ class Logger {
   }
 
   public debug(message: String) {
-    const DEBUG_COLOR = this.colors["BLUE"];
+    const DEBUG_COLOR = this.colors["PINK"];
     const DEBUG_FLAG = this.flags["DEBUG"];
 
     this.writeToConsole(DEBUG_FLAG, message, DEBUG_COLOR);
@@ -57,7 +57,7 @@ class Logger {
 
   public info(message: String) {
     const EVERYONE = 0xf1023;
-    const INFO_COLOR = this.colors["PINK"];
+    const INFO_COLOR = this.colors["BLUE"];
     const INFO_FLAG = this.flags["INFO"];
 
     this.writeToConsole(INFO_FLAG, message, INFO_COLOR);

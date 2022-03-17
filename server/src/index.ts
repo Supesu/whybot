@@ -11,11 +11,17 @@ import { Client, Router } from "./lib/twitch";
 void (async () => {
   //? initalize config
   const config = Config.createConfigFromEnv(process.env, ["supesuOCE"]);
-  const router = Router.createRouter();
+
 
   //? intalize twitch client
   Logger.debug("Initalizing Client");
-  const client = new Client(new TmiClient(config.convertToTmi()), router.exectueOrIgnore);
+  const client = new Client(new TmiClient(config.convertToTmi()));
+
+  //? Initalize Router
+  const router = await Router.create(client);
+
+  //? Bind router to client
+  client.handleMessage((...args) => router.routeMessage(...args));
 
   //? connect twitch client to api
   client
