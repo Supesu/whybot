@@ -1,6 +1,5 @@
 // External Imports
 import { Client as TmiClient } from "tmi.js";
-import {} from "discord.js";
 
 // Internal Imports
 import { Logger } from "./utils";
@@ -11,7 +10,6 @@ import { Client, Router } from "./lib/twitch";
 void (async () => {
   //? initalize config
   const config = Config.createConfigFromEnv(process.env, ["supesuOCE"]);
-
 
   //? intalize twitch client
   Logger.debug("Initalizing Client");

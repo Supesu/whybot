@@ -11,15 +11,18 @@ import {
 } from "./contract";
 import fetchUniques from "./uniques";
 import fetchOrdinaries from "./ordinaries";
+import { DahvidClient } from "../../api";
 
 export default class CommandRouter {
-  private client: ClientInterface;
+  private readonly _api: DahvidClient;
+  private readonly client: ClientInterface;
   private ordinaries: Ordinary[];
   private uniques: Unique[];
 
   static async create(client: ClientInterface): Promise<CommandRouter> {
     const uniqueModuleList: Unique[] = await fetchUniques();
     Logger.debug("Injected Uniques into Router");
+    
     const orindaryModuleList: Ordinary[] = await fetchOrdinaries();
     Logger.debug("Injected Ordinaries into Router");
 
@@ -32,6 +35,7 @@ export default class CommandRouter {
     uniques: Unique[],
     ordinaries: Ordinary[]
   ) {
+    this._api = new DahvidClient({ apiKey: process.env.RIOT_API_KEY });
     this.client = client;
     this.uniques = uniques;
     this.ordinaries = ordinaries;

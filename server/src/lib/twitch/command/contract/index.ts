@@ -2,7 +2,6 @@
 import { Logger } from "../../../../utils";
 import { ChatUserstate } from "tmi.js";
 import { ClientInterface } from "../..";
-import { Channel } from "diagnostics_channel";
 
 export enum Status {
   OK = 200,
