@@ -11,5 +11,6 @@ export interface OnMessageHandler {
 
 export interface ClientInterface {
   connect(): Promise<[string, number]>;
+  getPing(): Promise<[number]>;
   say(channel: string, message: string): Promise<[string]>;
 }

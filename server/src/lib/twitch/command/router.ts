@@ -11,34 +11,95 @@ import {
 } from "./contract";
 import fetchUniques from "./uniques";
 import fetchOrdinaries from "./ordinaries";
-import { DahvidClient } from "../../api";
+import { DahvidClient } from "../../riot";
+import { app } from "../../api";
+import { buildCustomUniques } from "./custom";
+import type { Express } from "express";
+import type { DatabaseClient } from "../../database";
 
 export default class CommandRouter {
   private readonly _api: DahvidClient;
   private readonly client: ClientInterface;
+  private readonly database: DatabaseClient;
+  private readonly app: Express;
   private ordinaries: Ordinary[];
   private uniques: Unique[];
 
-  static async create(client: ClientInterface): Promise<CommandRouter> {
+  static async create(
+    client: ClientInterface,
+    database: DatabaseClient
+  ): Promise<CommandRouter> {
     const uniqueModuleList: Unique[] = await fetchUniques();
+    const customUniqueModuleList: Unique[] = await buildCustomUniques(database);
     Logger.debug("Injected Uniques into Router");
-    
+
     const orindaryModuleList: Ordinary[] = await fetchOrdinaries();
     Logger.debug("Injected Ordinaries into Router");
 
     Logger.info("Router initalized :: Master");
-    return new this(client, uniqueModuleList, orindaryModuleList);
+
+    return new this(
+      client,
+      database,
+      [...uniqueModuleList, ...customUniqueModuleList],
+      orindaryModuleList
+    );
   }
 
   constructor(
     client: ClientInterface,
+    database: DatabaseClient,
     uniques: Unique[],
     ordinaries: Ordinary[]
   ) {
+    this.database = database;
+    this.app = app;
     this._api = new DahvidClient({ apiKey: process.env.RIOT_API_KEY });
     this.client = client;
     this.uniques = uniques;
     this.ordinaries = ordinaries;
+
+    this.startApi();
+  }
+
+  /**
+   * @internal
+   */
+  private async startApi() {
+    this.app.locals.router = this;
+    this.app.locals.database = this.database;
+
+    this.app
+      .listen(process.env.PORT, () => {
+        Logger.debug("Server running on port " + process.env.PORT);
+      })
+      .on("error", (e) => Logger.error(e.message));
+  }
+
+  public async injectUnique(unique: Unique) {
+    this.uniques.push(unique);
+
+    return;
+  }
+
+  public async fetchUniques() {
+    return this.uniques;
+  }
+
+  public async unloadUnique(id: string) {
+    const uniqueToReplace = await this.findUniqueById(id);
+    this.uniques.splice(uniqueToReplace, 1);
+  }
+
+  public async replaceUnique(id: string, unique: Unique) {
+    const uniqueToReplace = await this.findUniqueById(id);
+    this.uniques.splice(uniqueToReplace, 1);
+
+    this.uniques.push(unique);
+  }
+
+  private async findUniqueById(id: string): Promise<number> {
+    return this.uniques.findIndex((u) => u.getConfig().id === id);
   }
 
   public async routeMessage(
@@ -54,14 +115,14 @@ export default class CommandRouter {
 
       if (!ordinary) return [Status.IGNORE];
       else {
-        await ordinary.run(channel, userstate, message, self);
+        await ordinary.run(channel, userstate, message, self, this._api);
 
         return [Status.OK];
       }
     }
 
     try {
-      await unique.run(channel, userstate, message, self);
+      await unique.run(channel, userstate, message, self, this._api);
 
       return [Status.OK];
     } catch (e: any) {

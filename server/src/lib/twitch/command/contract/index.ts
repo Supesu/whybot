@@ -2,6 +2,7 @@
 import { Logger } from "../../../../utils";
 import { ChatUserstate } from "tmi.js";
 import { ClientInterface } from "../..";
+import { DahvidClient } from "../../../riot";
 
 export enum Status {
   OK = 200,
@@ -26,15 +27,29 @@ export interface UniqueInterface {
     userstate: UserStateT,
     message: string,
     self: boolean,
-    timeoutCache: any,
+    timeoutCache: any
   ): void;
 }
 
+export interface UniqueConfig {
+  data: {
+    response?: string;
+    triggers: string[];
+    summonerId?: string;
+    type: string;
+    region?: string;
+  };
+  id: string;
+}
 export class BaseUnique implements UniqueInterface {
   client: ClientInterface;
 
   static test(_message: string): boolean {
     return false;
+  }
+
+  static getConfig(): UniqueConfig {
+    return {} as UniqueConfig;
   }
 
   constructor(client: ClientInterface) {
@@ -46,14 +61,13 @@ export class BaseUnique implements UniqueInterface {
     _userstate: UserStateT,
     _message: string,
     _self: boolean,
+    _api: DahvidClient
   ): Promise<void> {
     return Promise.reject(Logger.fatal("This method needs to be implemented"));
   }
 }
 
-export interface OrdinaryInterface {
-
-}
+export interface OrdinaryInterface {}
 
 export class BaseOrdinary implements OrdinaryInterface {
   client: ClientInterface;
@@ -62,7 +76,7 @@ export class BaseOrdinary implements OrdinaryInterface {
     return false;
   }
 
-  constructor (client: ClientInterface) {
+  constructor(client: ClientInterface) {
     this.client = client;
   }
 
@@ -70,7 +84,8 @@ export class BaseOrdinary implements OrdinaryInterface {
     _channel: ChannelT,
     _userstate: UserStateT,
     _message: MessageT,
-    _self: SelfT, 
+    _self: SelfT,
+    _api: DahvidClient
   ): Promise<void> {
     return Promise.reject(Logger.fatal("This method needs to be implemented"));
   }

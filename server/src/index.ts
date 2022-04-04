@@ -5,18 +5,24 @@ import { Client as TmiClient } from "tmi.js";
 import { Logger } from "./utils";
 import { Config } from "./config";
 import { Client, Router } from "./lib/twitch";
+import { DatabaseClient } from "./lib/database";
 
 // Main loop
 void (async () => {
   //? initalize config
   const config = Config.createConfigFromEnv(process.env, ["supesuOCE"]);
 
+  //? initalize database
+  const database = new DatabaseClient({
+    config: JSON.parse(process.env.FIREBASE_CONFIG),
+  });
+
   //? intalize twitch client
   Logger.debug("Initalizing Client");
   const client = new Client(new TmiClient(config.convertToTmi()));
 
   //? Initalize Router
-  const router = await Router.create(client);
+  const router = await Router.create(client, database);
 
   //? Bind router to client
   client.handleMessage((...args) => router.routeMessage(...args));

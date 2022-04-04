@@ -1,8 +1,8 @@
-export type phantomstring<Min, Max> = string & {
+export type phantomstring<_Min, _Max> = string & {
   readonly phantomstring: unique symbol;
 };
 
-export type exactphantomstring<Length> = string & {
+export type exactphantomstring<_Length> = string & {
   readonly exactphantomstring: unique symbol;
 };
 

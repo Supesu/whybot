@@ -2,8 +2,8 @@ import { BaseUnique, UserStateT } from "../../contract";
 import { compileTriggers, Logger } from "../../../../../utils";
 import type { DahvidClient } from "../../../../riot";
 
-export default class TestUnique extends BaseUnique {
-  static UNIQUE_TRIGGERS = ["{PREFIX}test"];
+export default class ModdedUnique extends BaseUnique {
+  static UNIQUE_TRIGGERS = ["{PREFIX}iamodded", "{PREFIX}iammod"];
 
   public static getConfig() {
     return {
@@ -12,9 +12,10 @@ export default class TestUnique extends BaseUnique {
         triggers: this.UNIQUE_TRIGGERS,
         type: "inbuilt",
       },
-      id: "BVsFobmFUpukf5uCheao",
+      id: "S85zqms0GNpWTJRjsRPC",
     };
   }
+
   public static test(message: string): boolean {
     const COMPILED_TRIGGERS = compileTriggers(this.UNIQUE_TRIGGERS);
 
@@ -25,20 +26,20 @@ export default class TestUnique extends BaseUnique {
 
   public async run(
     channel: string,
-    _userstate: UserStateT,
+    userstate: UserStateT,
     _message: string,
     _self: boolean,
-    api: DahvidClient
+    _api: DahvidClient
   ): Promise<void> {
-    Logger.debug("Attempting to trigger Test unique");
+    Logger.debug("Attempting to trigger Modded unique");
 
-    const summoner = await api.summoner.bySummonerId(
-      "UhzAVbrbkhph5mN28udN8jPvEpGh0VZADVRTf_2Oi9v1oUCV6XruZG14zQ",
-      "oce"
-    );
+    const isMod =
+      userstate.mod || `#${userstate.username!.toLowerCase()}` === channel;
 
-    this.client.say(channel, summoner.id);
-    Logger.debug("Test unique has been triggered");
+    console.log(userstate);
+    await this.client.say(channel, isMod ? "Weirdge" : "YEP");
+
+    Logger.debug("Modded unique has been triggered");
     return Promise.resolve();
   }
 }

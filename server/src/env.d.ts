@@ -8,6 +8,8 @@ declare global {
       VERBOSE: string;
       DEBUG: string;
       DISCORD_TOKEN: string;
+      CORS_URL: string;
+      FIREBASE_CONFIG: string;
       TWITCH_USERNAME: string;
       TWITCH_PASSWORD: string;
       TWITCH_DEBUG: string;

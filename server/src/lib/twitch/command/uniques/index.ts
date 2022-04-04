@@ -1,25 +1,15 @@
 // Imports
-import { readdirSync } from "fs";
+import { default as getBaseUniques } from "./base";
+import { default as getLeagueUniques } from "./league";
 
 // Types
 import type { Unique } from "../contract";
 
 const fetchUniques = async (): Promise<Unique[]> => {
-  const uniques: Unique[] = [];
-  const uniquesToLoad = readdirSync(__dirname + "/base").filter((unique) =>
-    unique.endsWith(".unique.js")
-  );
+  const baseUniques = await getBaseUniques();
+  const leagueUniques = await getLeagueUniques();
 
-
-  for await (const u of uniquesToLoad) {
-    import(`${__dirname}/base/${u}`).then((unique) => {
-      if (unique && unique.default) {
-        uniques.push(unique.default);
-      }
-    });
-  }
-
-  return uniques;
+  return [...baseUniques, ...leagueUniques];
 };
 
 export default fetchUniques;

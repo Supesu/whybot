@@ -2,8 +2,8 @@ import { BaseUnique, UserStateT } from "../../contract";
 import { compileTriggers, Logger } from "../../../../../utils";
 import type { DahvidClient } from "../../../../riot";
 
-export default class TestUnique extends BaseUnique {
-  static UNIQUE_TRIGGERS = ["{PREFIX}test"];
+export default class PingUnique extends BaseUnique {
+  static UNIQUE_TRIGGERS = ["{PREFIX}ping"];
 
   public static getConfig() {
     return {
@@ -12,7 +12,7 @@ export default class TestUnique extends BaseUnique {
         triggers: this.UNIQUE_TRIGGERS,
         type: "inbuilt",
       },
-      id: "BVsFobmFUpukf5uCheao",
+      id: "FMQuEcMgAZ0qLJYi9uDn",
     };
   }
   public static test(message: string): boolean {
@@ -28,17 +28,13 @@ export default class TestUnique extends BaseUnique {
     _userstate: UserStateT,
     _message: string,
     _self: boolean,
-    api: DahvidClient
+    _api: DahvidClient
   ): Promise<void> {
-    Logger.debug("Attempting to trigger Test unique");
+    Logger.debug("Attempting to trigger Ping unique");
 
-    const summoner = await api.summoner.bySummonerId(
-      "UhzAVbrbkhph5mN28udN8jPvEpGh0VZADVRTf_2Oi9v1oUCV6XruZG14zQ",
-      "oce"
-    );
+    this.client.say(channel, (await this.client.getPing())[0] * 1000 + "ms");
 
-    this.client.say(channel, summoner.id);
-    Logger.debug("Test unique has been triggered");
+    Logger.debug("Ping unique has been triggered");
     return Promise.resolve();
   }
 }

@@ -25,4 +25,8 @@ export default class Client implements ClientInterface {
     this.client.on("message", handler);
     Logger.debug("Binded Message Handler To Client")
   }
+
+  getPing() {
+    return this.client.ping();
+  }
 }
