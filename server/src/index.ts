@@ -10,7 +10,10 @@ import { DatabaseClient } from "./lib/database";
 // Main loop
 void (async () => {
   //? initalize config
-  const config = Config.createConfigFromEnv(process.env, ["supesuOCE"]);
+  const config = Config.createConfigFromEnv(process.env, [
+    "supesuOCE",
+    "whynotbefriends",
+  ]);
 
   //? initalize database
   const database = new DatabaseClient({
@@ -26,6 +29,9 @@ void (async () => {
 
   //? Bind router to client
   client.handleMessage((...args) => router.routeMessage(...args));
+
+  //? Handle client events
+  client.startListeners();
 
   //? connect twitch client to api
   client

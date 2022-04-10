@@ -12,6 +12,7 @@ import {
 import fetchUniques from "./uniques";
 import fetchOrdinaries from "./ordinaries";
 import { DahvidClient } from "../../riot";
+import { Store } from "../../store";
 import { app } from "../../api";
 import { buildCustomUniques } from "./custom";
 import type { Express } from "express";
@@ -22,6 +23,7 @@ export default class CommandRouter {
   private readonly client: ClientInterface;
   private readonly database: DatabaseClient;
   private readonly app: Express;
+  private storemap: Record<string, Store>;
   private ordinaries: Ordinary[];
   private uniques: Unique[];
 
@@ -54,6 +56,7 @@ export default class CommandRouter {
   ) {
     this.database = database;
     this.app = app;
+    this.storemap = {};
     this._api = new DahvidClient({ apiKey: process.env.RIOT_API_KEY });
     this.client = client;
     this.uniques = uniques;
@@ -108,7 +111,7 @@ export default class CommandRouter {
     message: MessageT,
     self: SelfT
   ): Promise<[Status.OK] | [Status.IGNORE] | [Status.ERR, string]> {
-    const unique = this.findUnique(message);
+    const [unique, rawunique] = this.findUnique(message);
 
     if (!unique) {
       const ordinary = this.findOrdinary(message);
@@ -122,7 +125,23 @@ export default class CommandRouter {
     }
 
     try {
-      await unique.run(channel, userstate, message, self, this._api);
+      const config = rawunique.getConfig();
+
+      if (config.store && !this.storemap[config.storeId || config.id])
+        this.storemap[config.storeId || config.id] = await Store.create(this.database, {
+          ...config.storeOptions,
+          id: config.storeId || config.id,
+        });
+
+      await unique.run(
+        channel,
+        userstate,
+        message,
+        self,
+        this._api,
+        this.uniques,
+        this.storemap[config.storeId || config.id]
+      );
 
       return [Status.OK];
     } catch (e: any) {
@@ -144,8 +163,8 @@ export default class CommandRouter {
       UniqueModule.test(message)
     );
 
-    if (!Module) return null;
+    if (!Module) return [null, null];
 
-    return new Module!(this.client);
+    return [new Module!(this.client), Module];
   }
 }

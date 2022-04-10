@@ -1,9 +1,10 @@
-import { BaseUnique, UserStateT } from "../../contract";
+import { BaseUnique, Unique, UserStateT } from "../../contract";
 import { compileTriggers, Logger } from "../../../../../utils";
 import type { DahvidClient } from "../../../../riot";
+import type { Store } from "../../../../store";
 
-export default class PingUnique extends BaseUnique {
-  static UNIQUE_TRIGGERS = ["{PREFIX}ping"];
+export default class CurrentDittoUnique extends BaseUnique {
+  static UNIQUE_TRIGGERS = ["{PREFIX}currentditto"];
 
   public static getConfig() {
     return {
@@ -12,7 +13,9 @@ export default class PingUnique extends BaseUnique {
         triggers: this.UNIQUE_TRIGGERS,
         type: "inbuilt",
       },
-      id: "FMQuEcMgAZ0qLJYi9uDn",
+      storeId: "ouebxbmmRN74j8nW9sGU",
+      store: true,
+      id: "AyvBeRZ1jUbUMkHXmgRq",
     };
   }
   public static test(message: string): boolean {
@@ -28,15 +31,16 @@ export default class PingUnique extends BaseUnique {
     _userstate: UserStateT,
     _message: string,
     _self: boolean,
-    _api: DahvidClient
+    _api: DahvidClient,
+    _metadata: Unique[],
+    store: Store
   ): Promise<void> {
-    Logger.debug("Attempting to trigger Ping unique");
+    Logger.debug("Attempting to trigger Current unique");
+    var response: string = store.read("response");
 
-    const ping = (await this.client.getPing())[0] * 1000;
-    console.log(ping);
-    this.client.say(channel, `${ping}ms`);
+    this.client.say(channel, response || "No ditto selected, run !updateditto")
 
-    Logger.debug("Ping unique has been triggered");
+    Logger.debug("Current Unique has been triggered");
     return Promise.resolve();
   }
 }

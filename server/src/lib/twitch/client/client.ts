@@ -21,9 +21,20 @@ export default class Client implements ClientInterface {
     return this.client.say(channel, message);
   }
 
+  startListeners() {
+    this.client.on("disconnected", (err) => {
+      console.log(err);
+      Logger.warn("Lost connection to twitch");
+    });
+
+    this.client.on("reconnect", () => {
+      Logger.info("Reconnected to twitch")
+    })
+  }
+
   handleMessage(handler: OnMessageHandler) {
     this.client.on("message", handler);
-    Logger.debug("Binded Message Handler To Client")
+    Logger.debug("Binded Message Handler To Client");
   }
 
   getPing() {

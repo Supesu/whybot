@@ -1,9 +1,9 @@
-import { BaseUnique, UserStateT } from "../../contract";
+import { BaseUnique, Unique, UserStateT } from "../../contract";
 import { compileTriggers, Logger } from "../../../../../utils";
 import type { DahvidClient } from "../../../../riot";
 
 export default class PingUnique extends BaseUnique {
-  static UNIQUE_TRIGGERS = ["{PREFIX}ping"];
+  static UNIQUE_TRIGGERS = ["{PREFIX}getcmd"];
 
   public static getConfig() {
     return {
@@ -12,7 +12,7 @@ export default class PingUnique extends BaseUnique {
         triggers: this.UNIQUE_TRIGGERS,
         type: "inbuilt",
       },
-      id: "FMQuEcMgAZ0qLJYi9uDn",
+      id: "Z0qLJYi9uDnFMQuEcMgA",
     };
   }
   public static test(message: string): boolean {
@@ -26,17 +26,26 @@ export default class PingUnique extends BaseUnique {
   public async run(
     channel: string,
     _userstate: UserStateT,
-    _message: string,
+    message: string,
     _self: boolean,
-    _api: DahvidClient
+    _api: DahvidClient,
+    metadata: Unique[]
   ): Promise<void> {
-    Logger.debug("Attempting to trigger Ping unique");
+    Logger.debug("Attempting to trigger CMD unique");
 
-    const ping = (await this.client.getPing())[0] * 1000;
-    console.log(ping);
-    this.client.say(channel, `${ping}ms`);
+    const query = compileTriggers([message.split(/\s+/g)[1]])[0];
+    const cmd = metadata.find((c) => c.test(query));
 
-    Logger.debug("Ping unique has been triggered");
+    if (!cmd) {
+      await this.client.say(channel, "Not searching for trigger");
+      return;
+    }
+
+    const data = cmd.getConfig();
+
+    this.client.say(channel, data.id);
+
+    Logger.debug("CMD unique has been triggered");
     return Promise.resolve();
   }
 }

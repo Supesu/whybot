@@ -6,6 +6,7 @@ import {
   deleteDoc,
   setDoc,
   doc,
+  getDoc,
 } from "firebase/firestore";
 import { getAuth, signInAnonymously } from "firebase/auth";
 import type { FirebaseOptions, FirebaseApp } from "firebase/app";
@@ -63,5 +64,30 @@ export class DatabaseClient {
     const docRef = doc(this.db, collectionName, id);
     await setDoc(docRef, data);
     return true;
+  }
+
+  public async storeInCollectionWithId(
+    collectionName: string,
+    id: string,
+    data: any
+  ): Promise<boolean> {
+    const docRef = doc(this.db, collectionName, id);
+
+    await setDoc(docRef, { data: data });
+
+    return true;
+  }
+
+  public async retrieveStoreFromCloud(
+    collectionName: string,
+    id: string
+  ): Promise<any> {
+    const docRef = doc(this.db, collectionName, id);
+    const snapshot = await getDoc(docRef);
+    const data = snapshot.data();
+
+    if (!data) return {};
+
+    return data!.data;
   }
 }

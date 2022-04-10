@@ -3,7 +3,7 @@ import { compileTriggers, Logger } from "../../../../../utils";
 import type { DahvidClient } from "../../../../riot";
 
 export default class PingUnique extends BaseUnique {
-  static UNIQUE_TRIGGERS = ["{PREFIX}ping"];
+  static UNIQUE_TRIGGERS = ["{PREFIX}list"];
 
   public static getConfig() {
     return {
@@ -32,9 +32,7 @@ export default class PingUnique extends BaseUnique {
   ): Promise<void> {
     Logger.debug("Attempting to trigger Ping unique");
 
-    const ping = (await this.client.getPing())[0] * 1000;
-    console.log(ping);
-    this.client.say(channel, `${ping}ms`);
+    this.client.say(channel, `yeeyn ice ockckkk`);
 
     Logger.debug("Ping unique has been triggered");
     return Promise.resolve();

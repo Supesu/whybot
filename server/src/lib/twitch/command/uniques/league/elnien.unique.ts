@@ -32,11 +32,11 @@ const letter_map: Record<string, string[]> = {
 };
 
 const levels: Record<number, number> = {
-  1: 0.002,
-  2: 0.02,
-  3: 0.1,
-  4: 0.2,
-  5: 2,
+  1: 0.1,
+  2: 1,
+  3: 1.5,
+  4: 2,
+  5: 2.5,
 };
 
 export default class ElnienUnique extends BaseUnique {
@@ -83,6 +83,8 @@ export default class ElnienUnique extends BaseUnique {
       .join(" ")
       .split("")
       .map((letter, i) => {
+        letter = letter.toLowerCase();
+
         if (letter == " ")
           return {
             l: " ",
@@ -108,7 +110,7 @@ export default class ElnienUnique extends BaseUnique {
     for (let i = 0; i < amount; i++) {
       let t = Math.floor(Math.random() * first_pass.length);
 
-      if (toChange.includes(t) || first_pass[t].c === " ") {
+      if (toChange.includes(t)) {
         i--;
       } else {
         toChange.push(t);
@@ -116,7 +118,7 @@ export default class ElnienUnique extends BaseUnique {
     }
 
     const second_pass = first_pass.map((v) => {
-      if (toChange.includes(v.i)) {
+      if (toChange.includes(v.i) || v.l.toLowerCase() === "i") {
         return v.c;
       }
 

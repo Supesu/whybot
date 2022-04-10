@@ -3,6 +3,7 @@ import { Logger } from "../../../../utils";
 import { ChatUserstate } from "tmi.js";
 import { ClientInterface } from "../..";
 import { DahvidClient } from "../../../riot";
+import { Store } from "../../../store";
 
 export enum Status {
   OK = 200,
@@ -27,7 +28,9 @@ export interface UniqueInterface {
     userstate: UserStateT,
     message: string,
     self: boolean,
-    timeoutCache: any
+    api: DahvidClient,
+    metadata: Unique[],
+    store: Store
   ): void;
 }
 
@@ -61,7 +64,9 @@ export class BaseUnique implements UniqueInterface {
     _userstate: UserStateT,
     _message: string,
     _self: boolean,
-    _api: DahvidClient
+    _api: DahvidClient,
+    _metadata: Unique[],
+    _store: Store
   ): Promise<void> {
     return Promise.reject(Logger.fatal("This method needs to be implemented"));
   }
