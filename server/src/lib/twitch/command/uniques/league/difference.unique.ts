@@ -12,6 +12,10 @@ export default class DifferenceUnique extends BaseUnique {
         triggers: this.UNIQUE_TRIGGERS,
         type: "inbuilt",
       },
+      
+      metadata: {
+        description: "The difference in LP from whynot and Udysof"
+      },
       id: "SHJpgAP10J25Yje7kMgC",
     };
   }

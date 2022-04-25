@@ -32,11 +32,11 @@ const letter_map: Record<string, string[]> = {
 };
 
 const levels: Record<number, number> = {
-  1: 0.1,
-  2: 1,
-  3: 1.5,
-  4: 2,
-  5: 2.5,
+  1: 2,
+  2: 3,
+  3: 4,
+  4: 5,
+  5: 6,
 };
 
 export default class ElnienUnique extends BaseUnique {
@@ -49,7 +49,10 @@ export default class ElnienUnique extends BaseUnique {
         triggers: this.UNIQUE_TRIGGERS,
         type: "inbuilt",
       },
-      id: "aKdchawq5Lds1LcmSDMP",
+      metadata: {
+        description: "meow",
+      },
+      id: "5Lds1LcmSDMPaKdchawq",
     };
   }
 
@@ -104,11 +107,12 @@ export default class ElnienUnique extends BaseUnique {
         };
       });
 
-    var amount = Math.floor(_message.length * levels[level]) + Number(level);
+    var amount = (first_pass.length - first_pass.length / levels[level]) << 0;
+
     var toChange: number[] = [];
 
     for (let i = 0; i < amount; i++) {
-      let t = Math.floor(Math.random() * first_pass.length);
+      let t = (Math.random() * (first_pass.length + 1)) << 0;
 
       if (toChange.includes(t)) {
         i--;

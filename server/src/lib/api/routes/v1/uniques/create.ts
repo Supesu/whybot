@@ -41,6 +41,7 @@ router.post(
             ),
             type: sanitizeString(data.type) as Type,
           },
+          metadata: data.metadata,
           id: sanitizeString(data.id),
         };
       }
@@ -62,6 +63,8 @@ router.post(
             region: sanitizeString(data.region),
             type: sanitizeString(data.type) as Type,
           },
+
+          metadata: data.metadata,
           id: sanitizeString(data.id),
         };
       }
@@ -81,7 +84,10 @@ router.post(
     );
     router.injectUnique(unique);
 
-    return new SuccessResponse("Fetched games", "created").send(res);
+    return new SuccessResponse(
+      `Created unique: ${sanitizeString(req.body.id)}`,
+      "created"
+    ).send(res);
   })
 );
 

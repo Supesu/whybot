@@ -13,6 +13,9 @@ export default class GrandmasterUnique extends BaseUnique {
         triggers: this.UNIQUE_TRIGGERS,
         type: "inbuilt",
       },
+      metadata: {
+        description: "The lowest LP required for grandmaster"
+      },
       id: "RrTsOMnaBJouM5GpVBR9",
     };
   }

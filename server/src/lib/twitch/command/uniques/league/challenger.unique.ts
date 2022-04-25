@@ -16,6 +16,9 @@ export default class ChallengerUnique extends BaseUnique {
         triggers: this.UNIQUE_TRIGGERS,
         type: "inbuilt",
       },
+      metadata: {
+        description: "Lowest LP for challenger in a region"
+      },
       id: "OgrbqhkdVW8wzbt5PIU6",
     };
   }

@@ -14,7 +14,6 @@ export const formatRank = (tier: string, rank: string): string => {
     return s.toUpperCase();
   });
 
-  if (tier == "Challenger" || tier == "Grandmaster" || tier == "Master")
-    return tier;
+  if (["Challenger", "Grandmaster", "Master"].includes(tier)) return tier;
   return `${tier} ${RANK_HASH[rank]}`;
 };

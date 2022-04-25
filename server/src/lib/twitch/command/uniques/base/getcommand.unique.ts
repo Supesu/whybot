@@ -12,6 +12,9 @@ export default class PingUnique extends BaseUnique {
         triggers: this.UNIQUE_TRIGGERS,
         type: "inbuilt",
       },
+      metadata: {
+        description: "Get the id of command from its trigger"
+      },
       id: "Z0qLJYi9uDnFMQuEcMgA",
     };
   }

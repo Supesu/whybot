@@ -14,6 +14,9 @@ export default class UpdateDittoUnique extends BaseUnique {
         type: "inbuilt",
       },
       store: true,
+      metadata: {
+        description: "Update the current ditto",
+      },
       id: "ouebxbmmRN74j8nW9sGU",
     };
   }
@@ -33,7 +36,7 @@ export default class UpdateDittoUnique extends BaseUnique {
     _self: boolean,
     api: DahvidClient,
     _metadata: Unique[],
-    store: Store
+    _store: Store
   ): Promise<void> {
     Logger.debug("Attempting to trigger Update unique");
     if (

@@ -4,7 +4,7 @@ import type { DahvidClient } from "../../../../riot";
 import type { Store } from "../../../../store";
 
 export default class GetGullibleCountUnique extends BaseUnique {
-  static UNIQUE_TRIGGERS = ["{PREFIX}DnJYi9uFMQuEcMgAZ0qL"];
+  static UNIQUE_TRIGGERS = ["{PREFIX}bozos"];
 
   public static getConfig() {
     return {
@@ -13,15 +13,18 @@ export default class GetGullibleCountUnique extends BaseUnique {
         triggers: this.UNIQUE_TRIGGERS,
         type: "inbuilt",
       },
+      metadata: {
+        description: "BOOZOZOOZOZOZO"
+      },
       store: true,
       storeId: "FMQuEcMgAZ0qLJYi9uDn",
-      id: "DnJYi9uFMQuEcMgAZ0qL",
+      id: "DnMgAZ0qLJYi9uFMQuEc",
     };
   }
   public static test(message: string): boolean {
     const COMPILED_TRIGGERS = compileTriggers(this.UNIQUE_TRIGGERS);
 
-    return false && !!COMPILED_TRIGGERS.find(
+    return !!COMPILED_TRIGGERS.find(
       (x) => x === message.toLowerCase().split(/\s+/g)[0]
     );
   }

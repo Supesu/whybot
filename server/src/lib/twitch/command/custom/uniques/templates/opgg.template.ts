@@ -1,4 +1,9 @@
-import { BaseUnique, Unique, UserStateT } from "../../../contract";
+import {
+  BaseUnique,
+  Unique,
+  UniqueMetaData,
+  UserStateT,
+} from "../../../contract";
 import { compileTriggers, Logger } from "../../../../../../utils";
 import type { DahvidClient, Region } from "../../../../../riot";
 
@@ -6,7 +11,8 @@ export const buildOpggUnique: Unique = (
   id: string,
   triggers: string[],
   summonerId: string,
-  region: Region
+  region: Region,
+  metadata: UniqueMetaData
 ) => {
   return class OpggCustomUnique extends BaseUnique {
     static UNIQUE_TRIGGERS = triggers;
@@ -19,6 +25,7 @@ export const buildOpggUnique: Unique = (
           region,
           type: "opgg",
         },
+        metadata,
         id,
       };
     }
@@ -44,10 +51,7 @@ export const buildOpggUnique: Unique = (
       const summoner = await api.summoner.bySummonerId(summonerId, region);
       const name = encodeURI(summoner.name);
 
-      this.client.say(
-        channel,
-        `https://${region}.op.gg/summoners/oce/${name}`
-      );
+      this.client.say(channel, `https://${region}.op.gg/summoners/oce/${name}`);
 
       Logger.debug(`${id} unique has been triggered`);
       return Promise.resolve();

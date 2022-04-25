@@ -12,6 +12,9 @@ export default class ModdedUnique extends BaseUnique {
         triggers: this.UNIQUE_TRIGGERS,
         type: "inbuilt",
       },
+      metadata: {
+        description: "Test if the current user is modded or not"
+      },
       id: "S85zqms0GNpWTJRjsRPC",
     };
   }

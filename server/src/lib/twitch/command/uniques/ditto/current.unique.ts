@@ -15,6 +15,9 @@ export default class CurrentDittoUnique extends BaseUnique {
       },
       storeId: "ouebxbmmRN74j8nW9sGU",
       store: true,
+      metadata: {
+        description: "Retrieve the current ditto"
+      },
       id: "AyvBeRZ1jUbUMkHXmgRq",
     };
   }

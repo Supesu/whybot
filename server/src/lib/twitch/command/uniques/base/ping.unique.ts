@@ -12,6 +12,9 @@ export default class PingUnique extends BaseUnique {
         triggers: this.UNIQUE_TRIGGERS,
         type: "inbuilt",
       },
+      metadata: {
+        description: "Retrieve the ping from the internal client -> twitch"
+      },
       id: "FMQuEcMgAZ0qLJYi9uDn",
     };
   }

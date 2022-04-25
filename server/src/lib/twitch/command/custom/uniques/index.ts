@@ -15,7 +15,12 @@ export const buildCustomUniques = async (
   toBuild.forEach((unique) => {
     if (unique.data.type === "base") {
       _uniques.push(
-        buildBaseUnique(unique.id, unique.data.triggers, unique.data.response)
+        buildBaseUnique(
+          unique.id,
+          unique.data.triggers,
+          unique.data.response,
+          unique.data.metadata
+        )
       );
     }
 
@@ -25,7 +30,8 @@ export const buildCustomUniques = async (
           unique.id,
           unique.data.triggers,
           unique.data.summonerId,
-          unique.data.region
+          unique.data.region,
+          unique.data.metadata
         )
       );
     }
@@ -36,7 +42,8 @@ export const buildCustomUniques = async (
           unique.id,
           unique.data.triggers,
           unique.data.summonerId,
-          unique.data.region
+          unique.data.region,
+          unique.data.metadata
         )
       );
     }
@@ -53,6 +60,9 @@ interface UniqueData {
     region?: string;
     type: "track" | "opgg" | "base";
   };
+  metadata: {
+    description: string;
+  };
   id: string;
 }
 
@@ -61,7 +71,8 @@ export const buildCustomUnique = async (uniqueData: UniqueData) => {
     return buildBaseUnique(
       uniqueData.id,
       uniqueData.data.triggers,
-      uniqueData.data.response
+      uniqueData.data.response,
+      uniqueData.metadata
     );
   }
 
@@ -70,7 +81,8 @@ export const buildCustomUnique = async (uniqueData: UniqueData) => {
       uniqueData.id,
       uniqueData.data.triggers,
       uniqueData.data.summonerId,
-      uniqueData.data.region
+      uniqueData.data.region,
+      uniqueData.metadata
     );
   }
 
@@ -79,7 +91,8 @@ export const buildCustomUnique = async (uniqueData: UniqueData) => {
       uniqueData.id,
       uniqueData.data.triggers,
       uniqueData.data.summonerId,
-      uniqueData.data.region
+      uniqueData.data.region,
+      uniqueData.metadata
     );
   }
 };

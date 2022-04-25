@@ -22,6 +22,10 @@ export type ResponseT = Promise<
   [Status.OK] | [Status.IGNORE] | [Status.ERR, string]
 >;
 
+export interface UniqueMetaData {
+  description: string;
+}
+
 export interface UniqueInterface {
   run(
     channel: string,

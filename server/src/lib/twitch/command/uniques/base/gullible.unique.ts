@@ -14,6 +14,9 @@ export default class GullibleUnique extends BaseUnique {
         type: "inbuilt",
       },
       store: true,
+      metadata: {
+        description: "I mean it does something tbf"
+      },
       id: "FMQuEcMgAZ0qLJYi9uDn",
     };
   }

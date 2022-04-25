@@ -15,6 +15,9 @@ export default class SetDittoUnique extends BaseUnique {
       },
       storeId: "ouebxbmmRN74j8nW9sGU",
       store: true,
+      metadata: {
+        description: "Set the current ditto",
+      },
       id: "jUbUMkHXmgRqAyvBeRZ1",
     };
   }

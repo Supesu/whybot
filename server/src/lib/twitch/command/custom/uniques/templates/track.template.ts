@@ -1,4 +1,4 @@
-import { BaseUnique, Unique, UserStateT } from "../../../contract";
+import { BaseUnique, Unique, UniqueMetaData, UserStateT } from "../../../contract";
 import { compileTriggers, Logger } from "../../../../../../utils";
 import type { DahvidClient, Region } from "../../../../../riot";
 import { formatRank } from "../../../../../../utils";
@@ -7,7 +7,8 @@ export const buildTrackUnique: Unique = (
   id: string,
   triggers: string[],
   summonerId: string,
-  region: Region
+  region: Region,
+  metadata: UniqueMetaData
 ) => {
   return class TrackCustomUnique extends BaseUnique {
     static UNIQUE_TRIGGERS = triggers;
@@ -20,6 +21,7 @@ export const buildTrackUnique: Unique = (
           region,
           type: "track",
         },
+        metadata,
         id,
       };
     }

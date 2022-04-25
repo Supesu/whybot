@@ -1,11 +1,17 @@
-import { BaseUnique, Unique, UserStateT } from "../../../contract";
+import {
+  BaseUnique,
+  Unique,
+  UniqueMetaData,
+  UserStateT,
+} from "../../../contract";
 import { compileTriggers, Logger } from "../../../../../../utils";
 import type { DahvidClient } from "../../../../../riot";
 
 export const buildBaseUnique: Unique = (
   id: string,
   triggers: string[],
-  response: string
+  response: string,
+  metadata: UniqueMetaData
 ) => {
   return class BaseCustomUnique extends BaseUnique {
     static UNIQUE_TRIGGERS = triggers;
@@ -15,8 +21,9 @@ export const buildBaseUnique: Unique = (
         data: {
           response,
           triggers,
-          type: "base"
+          type: "base",
         },
+        metadata,
         id,
       };
     }

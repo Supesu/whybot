@@ -12,6 +12,9 @@ export default class TestUnique extends BaseUnique {
         triggers: this.UNIQUE_TRIGGERS,
         type: "inbuilt",
       },
+      metadata: {
+        description: "test command (tests internal sdk)"
+      },
       id: "BVsFobmFUpukf5uCheao",
     };
   }
