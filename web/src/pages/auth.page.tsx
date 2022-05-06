@@ -33,9 +33,23 @@ export const Auth: FC<AuthProps> = ({ setApiKey }: AuthProps): ReactElement => {
   const [shouldRedirect, setShouldRedirect] = useState<boolean>(false);
   const [validInput, setValidInput] = useState<boolean>(true);
 
+  const openInNewTab = (url: string): void => {
+    const newWindow = window.open(url, "_blank", "noopener,noreferrer");
+    if (newWindow) newWindow.opener = null;
+  };
+
+  const onClickUrl =
+    (url: string): (() => void) =>
+    () =>
+      openInNewTab(url);
+
   const authenticate = (email: string, password: string) => {
+    const __prod__ = true;
+    const url = __prod__ ? "159.223.166.97:2020" : "192.168.50.112:4040";
+    const protocol = __prod__ ? "http" : "http";
+
     axios
-      .post("http://192.168.50.112:4040/api/v1/auth", {
+      .post(`${protocol}://${url}/api/v1/auth`, {
         email,
         password,
       })
@@ -62,7 +76,9 @@ export const Auth: FC<AuthProps> = ({ setApiKey }: AuthProps): ReactElement => {
     () =>
       `bg-[#17161C] appearance-none border-2 ${
         validInput ? "border-[#2A2B34]" : "border-red-300"
-      } placeholder-custom rounded-lg w-full py-2 px-4 text-[#D0D0D1]`,
+      } placeholder-custom rounded-lg w-full py-2 px-4 text-[#D0D0D1] ${
+        validInput ? "focus:border-[#2A2B34]" : "focus:border-red-300"
+      }`,
     [validInput]
   );
 
@@ -130,7 +146,7 @@ export const Auth: FC<AuthProps> = ({ setApiKey }: AuthProps): ReactElement => {
             </Formik>
           </div>
         </div>
-        <div className={`hidden lg:flex w-1/2 bg-[#1D1B22]`}>
+        <div className={`hidden lg:flex w-1/2 bg-[#1D1B22] cursor-pointer`} onClick={onClickUrl("https://supesu.dev/")}>
           <VerticalText toPrint="スペース" Container={_Container} />
         </div>
       </div>

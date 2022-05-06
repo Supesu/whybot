@@ -75,7 +75,7 @@ export const App: FC<AppProps> = ({ apiKey }: AppProps): ReactElement => {
   useEffect(() => {
     if (!isAuthenticated) return;
 
-    const __prod__ = false;
+    const __prod__ = true;
     const url = __prod__ ? "159.223.166.97:2020" : "192.168.50.112:4040";
     const protocol = __prod__ ? "http" : "http";
 
@@ -104,10 +104,13 @@ export const App: FC<AppProps> = ({ apiKey }: AppProps): ReactElement => {
     region,
     summonerName,
   }: createUniqueConfig) => {
+    console.log("someone tried to submit");
     if (!triggers || triggers === "" || !description || description === "")
       return;
 
     if (type === "base" && (!response || response === "")) return;
+    
+    // FAILS HERE 
     if (
       (type === "track" || type === "opgg") &&
       (!summonerName || summonerName === "" || !region || region === "")
@@ -131,6 +134,8 @@ export const App: FC<AppProps> = ({ apiKey }: AppProps): ReactElement => {
       _template["data"]["summonerName"] = summonerName!;
       _template["data"]["region"] = region!;
     }
+
+    _template["data"]["type"] = type!;
 
     console.log(_template);
   };
@@ -247,7 +252,7 @@ export const App: FC<AppProps> = ({ apiKey }: AppProps): ReactElement => {
                         placeholder="Description"
                       />
                       <Field
-                        name="summoner name"
+                        name="summonerName"
                         autoComplete="off"
                         type="text"
                         placeholder="Summoner name"
@@ -313,7 +318,7 @@ export const App: FC<AppProps> = ({ apiKey }: AppProps): ReactElement => {
                         placeholder="Description"
                       />
                       <Field
-                        name="summoner name"
+                        name="summonerName"
                         autoComplete="off"
                         type="text"
                         placeholder="Summoner name"

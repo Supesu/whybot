@@ -42,7 +42,7 @@ export const Landing: FC = (): ReactElement => {
   const [commands, setCommands] = useState<LocalCommand[]>([]);
 
   useEffect(() => {
-    const __prod__ = false;
+    const __prod__ = true;
     const url = __prod__ ? "159.223.166.97:2020" : "192.168.50.112:4040";
     const protocol = __prod__ ? "http" : "http";
 
