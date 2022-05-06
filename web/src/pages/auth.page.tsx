@@ -45,8 +45,8 @@ export const Auth: FC<AuthProps> = ({ setApiKey }: AuthProps): ReactElement => {
 
   const authenticate = (email: string, password: string) => {
     const __prod__ = true;
-    const url = __prod__ ? "159.223.166.97:2020" : "192.168.50.112:4040";
-    const protocol = __prod__ ? "http" : "http";
+    const url = __prod__ ? "whybotapi.supesu.dev" : "192.168.50.112:4040";
+    const protocol = __prod__ ? "https" : "http";
 
     axios
       .post(`${protocol}://${url}/api/v1/auth`, {
