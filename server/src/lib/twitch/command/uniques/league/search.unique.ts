@@ -1,6 +1,6 @@
 import { BaseUnique, UserStateT } from "../../contract";
 import { compileTriggers, Logger } from "../../../../../utils";
-import type { DahvidClient, Continent, Region } from "dahvidclient";
+import type { DahvidClient, Region } from "dahvidclient";
 import { regionMap, regionToContinentMap } from "dahvidclient";
 
 export default class SearchUnique extends BaseUnique {
