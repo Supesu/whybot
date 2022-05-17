@@ -61,8 +61,8 @@ export default class SearchUnique extends BaseUnique {
       return Promise.resolve();
     }
 
-    if (hours > 24) {
-      this.client.say(channel, "I cannot search past 24 hours!");
+    if (hours > 168) {
+      this.client.say(channel, "I cannot search past 168 hours!");
       return Promise.resolve();
     }
 
