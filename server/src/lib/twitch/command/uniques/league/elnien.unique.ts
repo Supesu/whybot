@@ -94,7 +94,7 @@ export default class ElnienUnique extends BaseUnique {
             i,
             c: " ",
           };
-        const letter_array = letter_map[letter];
+        const letter_array = letter_map[letter] || [];
         const random_number = Math.floor(Math.random() * letter_array.length);
         const selected = letter_array.length
           ? letter_array[random_number]
