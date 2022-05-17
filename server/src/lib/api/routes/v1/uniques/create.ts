@@ -2,7 +2,11 @@ import express from "express";
 import { DatabaseClient } from "../../../../../lib/database";
 import { Router } from "../../../../../lib/twitch";
 
-import { BadRequestResponse, SuccessResponse } from "../../../core/ApiResponse";
+import {
+  BadRequestResponse,
+  SuccessResponse,
+  ForbiddenResponse,
+} from "../../../core/ApiResponse";
 import asyncHandler from "../../../helpers/asyncHandler";
 import { buildCustomUnique } from "../../../../../lib/twitch/command/custom";
 
@@ -17,6 +21,9 @@ const sanitizeString = (str: string) => {
 router.post(
   "/",
   asyncHandler(async (req, res) => {
+    if (req.body.api_key !== process.env.API_KEY)
+      return new ForbiddenResponse("Hmm not allowed bro");
+
     const router = req.app.locals.router as Router;
     const db = req.app.locals.database as DatabaseClient;
 
@@ -76,11 +83,18 @@ router.post(
 
     if (!template) return new BadRequestResponse("500 oops");
 
+    const cloudTemplate = {
+      metadata: template.metadata,
+      ...template.data,
+    };
+
+    console.log(cloudTemplate);
+
     const unique = await buildCustomUnique(template);
     db.injectIntoCollectionWithId(
       "uniques",
       sanitizeString(req.body.id),
-      template.data
+      cloudTemplate
     );
     router.injectUnique(unique);
 

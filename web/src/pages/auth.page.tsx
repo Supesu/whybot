@@ -45,7 +45,7 @@ export const Auth: FC<AuthProps> = ({ setApiKey }: AuthProps): ReactElement => {
 
   const authenticate = (email: string, password: string) => {
     const __prod__ = true;
-    const url = __prod__ ? "whybotapi.supesu.dev" : "192.168.50.112:4040";
+    const url = __prod__ ? "whybotapi.supesu.dev" : "localhost:4040";
     const protocol = __prod__ ? "https" : "http";
 
     axios
@@ -146,7 +146,10 @@ export const Auth: FC<AuthProps> = ({ setApiKey }: AuthProps): ReactElement => {
             </Formik>
           </div>
         </div>
-        <div className={`hidden lg:flex w-1/2 bg-[#1D1B22] cursor-pointer`} onClick={onClickUrl("https://supesu.dev/")}>
+        <div
+          className={`hidden lg:flex w-1/2 bg-[#1D1B22] cursor-pointer`}
+          onClick={onClickUrl("https://supesu.dev/")}
+        >
           <VerticalText toPrint="スペース" Container={_Container} />
         </div>
       </div>

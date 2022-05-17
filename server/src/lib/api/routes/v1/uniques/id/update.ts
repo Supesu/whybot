@@ -5,6 +5,7 @@ import { Router } from "../../../../../../lib/twitch";
 import {
   BadRequestResponse,
   SuccessResponse,
+  ForbiddenResponse,
 } from "../../../../core/ApiResponse";
 import asyncHandler from "../../../../helpers/asyncHandler";
 import { buildCustomUnique } from "../../../../../../lib/twitch/command/custom";
@@ -19,6 +20,9 @@ const sanitizeString = (str: string) => {
 router.post(
   "/",
   asyncHandler(async (req, res) => {
+    if (req.body.api_key !== process.env.API_KEY)
+      return new ForbiddenResponse("Hmm not allowed bro");
+
     const router = req.app.locals.router as Router;
     const database = req.app.locals.database as DatabaseClient;
     const id = req.app.locals.id;
