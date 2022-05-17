@@ -1,6 +1,6 @@
 import { BaseUnique, UserStateT } from "../../contract";
 import { compileTriggers, Logger } from "../../../../../utils";
-import type { DahvidClient } from "../../../../riot";
+import type { DahvidClient } from "dahvidclient";
 
 const letter_map: Record<string, string[]> = {
   a: ["4", "Ä", "Ã", "Á", "Å"],

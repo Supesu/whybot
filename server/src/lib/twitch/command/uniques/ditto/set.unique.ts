@@ -1,6 +1,6 @@
 import { BaseUnique, Unique, UserStateT } from "../../contract";
 import { compileTriggers, Logger } from "../../../../../utils";
-import type { DahvidClient } from "../../../../riot";
+import type { DahvidClient } from "dahvidclient"; 
 import type { Store } from "../../../../store";
 
 export default class SetDittoUnique extends BaseUnique {

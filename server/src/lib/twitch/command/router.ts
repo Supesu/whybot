@@ -11,7 +11,7 @@ import {
 } from "./contract";
 import fetchUniques from "./uniques";
 import fetchOrdinaries from "./ordinaries";
-import { DahvidClient } from "../../riot";
+import { DahvidClient } from "dahvidclient";
 import { Store } from "../../store";
 import { app } from "../../api";
 import { buildCustomUniques } from "./custom";
@@ -128,10 +128,13 @@ export default class CommandRouter {
       const config = rawunique.getConfig();
 
       if (config.store && !this.storemap[config.storeId || config.id])
-        this.storemap[config.storeId || config.id] = await Store.create(this.database, {
-          ...config.storeOptions,
-          id: config.storeId || config.id,
-        });
+        this.storemap[config.storeId || config.id] = await Store.create(
+          this.database,
+          {
+            ...config.storeOptions,
+            id: config.storeId || config.id,
+          }
+        );
 
       await unique.run(
         channel,

@@ -2,7 +2,7 @@
 import { Logger } from "../../../../utils";
 import { ChatUserstate } from "tmi.js";
 import { ClientInterface } from "../..";
-import { DahvidClient } from "../../../riot";
+import { DahvidClient } from "dahvidclient";
 import { Store } from "../../../store";
 
 export enum Status {

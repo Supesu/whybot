@@ -1,6 +1,6 @@
 import { BaseUnique, UserStateT } from "../../contract";
 import { compileTriggers, Logger } from "../../../../../utils";
-import type { DahvidClient } from "../../../../riot";
+import type { DahvidClient } from "dahvidclient";
 
 export default class PingUnique extends BaseUnique {
   static UNIQUE_TRIGGERS = ["{PREFIX}list"];

@@ -1,7 +1,6 @@
 import { BaseUnique, Unique, UniqueMetaData, UserStateT } from "../../../contract";
-import { compileTriggers, Logger } from "../../../../../../utils";
-import type { DahvidClient, Region } from "../../../../../riot";
-import { formatRank } from "../../../../../../utils";
+import { compileTriggers, Logger, formatRank } from "../../../../../../utils";
+import type { DahvidClient, Region } from "dahvidclient";
 
 export const buildTrackUnique: Unique = (
   id: string,

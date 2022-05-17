@@ -1,7 +1,7 @@
 import { BaseUnique, UserStateT } from "../../contract";
 import { compileTriggers, Logger } from "../../../../../utils";
-import type { DahvidClient, LeagueItemDTO, Region } from "../../../../riot";
-import { region_map } from "../../../../riot";
+import type { DahvidClient, LeagueItemDTO, Region } from "dahvidclient";
+import { regionMap } from "dahvidclient";
 
 export default class ChallengerUnique extends BaseUnique {
   static UNIQUE_TRIGGERS = [
@@ -55,7 +55,7 @@ export default class ChallengerUnique extends BaseUnique {
     this.client.say(
       channel,
       `Lowest LP for challenger in ${
-        region_map[region] ? region.toUpperCase() : "OCE"
+        regionMap[region] ? region.toUpperCase() : "OCE"
       } is: ${lowestLP}LP`
     );
 

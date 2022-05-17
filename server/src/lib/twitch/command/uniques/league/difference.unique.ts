@@ -1,6 +1,6 @@
 import { BaseUnique, UserStateT } from "../../contract";
 import { compileTriggers, Logger } from "../../../../../utils";
-import type { DahvidClient, LeagueEntryDTO } from "../../../../riot";
+import type { DahvidClient, LeagueEntryDTO } from "dahvidclient";
 
 export default class DifferenceUnique extends BaseUnique {
   static UNIQUE_TRIGGERS = ["{PREFIX}difference"];

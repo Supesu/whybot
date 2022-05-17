@@ -5,7 +5,7 @@ import {
   UserStateT,
 } from "../../../contract";
 import { compileTriggers, Logger } from "../../../../../../utils";
-import type { DahvidClient, Region } from "../../../../../riot";
+import type { DahvidClient, Region } from "dahvidclient";
 
 export const buildOpggUnique: Unique = (
   id: string,

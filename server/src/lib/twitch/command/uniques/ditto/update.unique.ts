@@ -1,6 +1,6 @@
 import { BaseUnique, Unique, UserStateT } from "../../contract";
 import { compileTriggers, Logger } from "../../../../../utils";
-import type { DahvidClient, LeagueItemDTO } from "../../../../riot";
+import type { DahvidClient, LeagueItemDTO } from "dahvidclient";
 import type { Store } from "../../../../store";
 
 export default class UpdateDittoUnique extends BaseUnique {

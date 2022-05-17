@@ -6,7 +6,7 @@ import {
   UserStateT,
 } from "../../contract";
 import { Logger } from "../../../../../utils";
-import type { DahvidClient } from "../../../../riot";
+import type { DahvidClient } from "dahvidclient";
 
 export default class TestOrdinary extends BaseOrdinary {
   //! no {PREFIX} | Ordinaries triggers cannot compile.
