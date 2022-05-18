@@ -49,9 +49,9 @@ export const buildOpggUnique: Unique = (
       Logger.debug(`Attempting to trigger ${id} unique`);
 
       const summoner = await api.summoner.bySummonerId(summonerId, region);
-      const name = encodeURI(summoner.name);
+      const name = encodeURI(summoner.name.trim());
 
-      this.client.say(channel, `https://${region}.op.gg/summoners/oce/${name}`);
+      this.client.say(channel, `https://op.gg/summoners/${region}/${name}`);
 
       Logger.debug(`${id} unique has been triggered`);
       return Promise.resolve();
