@@ -45,8 +45,14 @@ export default class VoteBanUnique extends BaseUnique {
     store: Store
   ): Promise<Status> {
     Logger.debug("Attempting to trigger VoteBan unique");
-    var count = Number(store.read("weight"));
     var [_trigger, target, ...reason] = message.split(" ");
+
+    const voteInProgress = store.read("isVoteInProgress");
+    if (voteInProgress) {
+      this.client.say(channel, "A vote is currently in progress");
+
+      return Promise.resolve(Status.IGNORE);
+    }
 
     // no target & reason
     if ((!target && reason.length == 0) || !target.includes("@")) {
@@ -72,11 +78,6 @@ export default class VoteBanUnique extends BaseUnique {
       return Promise.resolve(Status.IGNORE);
     }
 
-    if (count > 0) {
-      count = 0;
-      store.write("count", 0);
-    }
-
     this.client.say(
       channel,
       `${
@@ -86,8 +87,12 @@ export default class VoteBanUnique extends BaseUnique {
       )}" | Vote with !agree or !disagree`
     );
 
+    store.write("isVoteInProgress", true);
+    store.write("weight", 0);
+    store.write("users", []);
     setTimeout(() => {
       const end_weight = store.read("weight");
+      store.write("isVoteInProgress", false);
 
       if (end_weight > 0) {
         this.client
