@@ -88,8 +88,6 @@ router.post(
       ...template.data,
     };
 
-    console.log(cloudTemplate);
-
     const unique = await buildCustomUnique(template);
     db.injectIntoCollectionWithId(
       "uniques",

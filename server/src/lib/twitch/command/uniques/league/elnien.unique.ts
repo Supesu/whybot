@@ -1,6 +1,5 @@
-import { BaseUnique, UserStateT, Status } from "../../contract";
+import { BaseUnique, Status, UniqueData } from "../../contract";
 import { compileTriggers, Logger } from "../../../../../utils";
-import type { DahvidClient } from "dahvidclient";
 
 const letter_map: Record<string, string[]> = {
   a: ["4", "Ä", "Ã", "Á", "Å"],
@@ -64,13 +63,7 @@ export default class ElnienUnique extends BaseUnique {
     );
   }
 
-  public async run(
-    channel: string,
-    _userstate: UserStateT,
-    message: string,
-    _self: boolean,
-    _api: DahvidClient
-  ): Promise<Status.IGNORE | Status.ERR | Status.OK> {
+  public async run({ channel, message }: UniqueData): Promise<Status> {
     Logger.debug("Attempting to trigger Elnien unique");
     var [_command, _level, ..._message] = message.split(/\s+/g);
     const level = Number(_level);

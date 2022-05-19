@@ -1,7 +1,5 @@
-import { BaseUnique, UserStateT, Status, Unique } from "../../contract";
+import { BaseUnique, Status, UniqueData } from "../../contract";
 import { compileTriggers, Logger } from "../../../../../utils";
-import type { DahvidClient } from "dahvidclient";
-import { Store } from "../../../../store";
 
 export default class DisagreeUnique extends BaseUnique {
   static UNIQUE_TRIGGERS = ["{PREFIX}disagree", "{PREFIX}no"];
@@ -30,15 +28,11 @@ export default class DisagreeUnique extends BaseUnique {
     );
   }
 
-  public async run(
-    channel: string,
-    userstate: UserStateT,
-    _message: string,
-    _self: boolean,
-    _api: DahvidClient,
-    _metadata: Unique[],
-    store: Store
-  ): Promise<Status.IGNORE | Status.ERR | Status.OK> {
+  public async run({
+    channel,
+    userstate,
+    store,
+  }: UniqueData): Promise<Status.IGNORE | Status.ERR | Status.OK> {
     Logger.debug("Attempting to trigger Disagree unique");
 
     // test if vote is in progress

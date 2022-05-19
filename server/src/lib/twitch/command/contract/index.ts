@@ -1,9 +1,9 @@
 // External Imports
 import { Logger } from "../../../../utils";
-import { ChatUserstate } from "tmi.js";
-import { ClientInterface } from "../..";
-import { DahvidClient } from "dahvidclient";
-import { Store } from "../../../store";
+import type { ChatUserstate } from "tmi.js";
+import type { ClientInterface } from "../..";
+import type { DahvidClient } from "dahvidclient";
+import type { Store } from "../../../store";
 
 export enum Status {
   OK = 200,
@@ -22,20 +22,22 @@ export type ResponseT = Promise<
   [Status.OK] | [Status.IGNORE] | [Status.ERR, string]
 >;
 
+export type UniqueData = {
+  channel: string;
+  userstate: UserStateT;
+  message: string;
+  self: boolean;
+  api: DahvidClient;
+  metadata: Unique[];
+  store: Store;
+};
+
 export interface UniqueMetaData {
   description: string;
 }
 
 export interface UniqueInterface {
-  run(
-    channel: string,
-    userstate: UserStateT,
-    message: string,
-    self: boolean,
-    api: DahvidClient,
-    metadata: Unique[],
-    store: Store
-  ): void;
+  run(data: UniqueData): void;
 }
 
 export interface UniqueConfig {
@@ -63,15 +65,7 @@ export class BaseUnique implements UniqueInterface {
     this.client = client;
   }
 
-  run(
-    _channel: string,
-    _userstate: UserStateT,
-    _message: string,
-    _self: boolean,
-    _api: DahvidClient,
-    _metadata: Unique[],
-    _store: Store
-  ): Promise<Status.IGNORE | Status.ERR | Status.OK> {
+  run(_data: UniqueData): Promise<Status.IGNORE | Status.ERR | Status.OK> {
     return Promise.reject(Logger.fatal("This method needs to be implemented"));
   }
 }

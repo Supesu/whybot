@@ -1,7 +1,9 @@
-import { BaseUnique, UserStateT, Unique, Status } from "../../contract";
-import { Store } from "../../../../store";
+import {
+  BaseUnique,
+  Status,
+  UniqueData,
+} from "../../contract";
 import { compileTriggers, Logger } from "../../../../../utils";
-import type { DahvidClient } from "dahvidclient";
 
 const FIVE_MINUTES = 1000 * 60 * 5; // 5 minutes in ms
 const FOURTY_SECONDS = 1000 * 40;
@@ -35,15 +37,12 @@ export default class VoteBanUnique extends BaseUnique {
     );
   }
 
-  public async run(
-    channel: string,
-    userstate: UserStateT,
-    message: string,
-    _self: boolean,
-    _api: DahvidClient,
-    _metadata: Unique[],
-    store: Store
-  ): Promise<Status> {
+  public async run({
+    channel,
+    userstate,
+    message,
+    store,
+  }: UniqueData): Promise<Status> {
     Logger.debug("Attempting to trigger VoteBan unique");
     var [_trigger, target, ...reason] = message.split(" ");
 

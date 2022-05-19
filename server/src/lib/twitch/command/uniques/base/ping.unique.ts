@@ -36,7 +36,6 @@ export default class PingUnique extends BaseUnique {
     Logger.debug("Attempting to trigger Ping unique");
 
     const ping = (await this.client.getPing())[0] * 1000;
-    console.log(ping);
     this.client.say(channel, `${ping}ms`);
 
     Logger.debug("Ping unique has been triggered");

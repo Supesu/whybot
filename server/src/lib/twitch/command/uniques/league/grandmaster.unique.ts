@@ -1,11 +1,11 @@
-import { BaseUnique, UserStateT, Status } from "../../contract";
+import { BaseUnique, Status, UniqueData } from "../../contract";
 import { compileTriggers, Logger } from "../../../../../utils";
-import type { DahvidClient, LeagueItemDTO, Region } from "dahvidclient";
+import type { LeagueItemDTO, Region } from "dahvidclient";
 import { regionMap } from "dahvidclient";
 
 export default class GrandmasterUnique extends BaseUnique {
   static UNIQUE_TRIGGERS = ["{PREFIX}grandmaster", "{PREFIX}gm"];
-  
+
   public static getConfig() {
     return {
       data: {
@@ -14,7 +14,7 @@ export default class GrandmasterUnique extends BaseUnique {
         type: "inbuilt",
       },
       metadata: {
-        description: "The lowest LP required for grandmaster"
+        description: "The lowest LP required for grandmaster",
       },
       id: "RrTsOMnaBJouM5GpVBR9",
     };
@@ -28,13 +28,7 @@ export default class GrandmasterUnique extends BaseUnique {
     );
   }
 
-  public async run(
-    channel: string,
-    _userstate: UserStateT,
-    message: string,
-    _self: boolean,
-    api: DahvidClient
-  ): Promise<Status.IGNORE | Status.ERR | Status.OK> {
+  public async run({ channel, message, api }: UniqueData): Promise<Status> {
     Logger.debug("Attempting to trigger Grandmaster unique");
     const region = (message.split(/\s+/g)[1] || "oce").toLowerCase() as Region;
 

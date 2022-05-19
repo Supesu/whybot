@@ -1,6 +1,5 @@
-import { BaseUnique, UserStateT, Status } from "../../contract";
+import { BaseUnique, Status, UniqueData } from "../../contract";
 import { compileTriggers, Logger } from "../../../../../utils";
-import type { DahvidClient } from "dahvidclient";
 
 export default class TestUnique extends BaseUnique {
   static UNIQUE_TRIGGERS = ["{PREFIX}test"];
@@ -26,13 +25,10 @@ export default class TestUnique extends BaseUnique {
     );
   }
 
-  public async run(
-    channel: string,
-    _userstate: UserStateT,
-    _message: string,
-    _self: boolean,
-    api: DahvidClient
-  ): Promise<Status.IGNORE | Status.ERR | Status.OK> {
+  public async run({
+    channel,
+    api,
+  }: UniqueData): Promise<Status.IGNORE | Status.ERR | Status.OK> {
     Logger.debug("Attempting to trigger Test unique");
 
     const summoner = await api.summoner.bySummonerId(

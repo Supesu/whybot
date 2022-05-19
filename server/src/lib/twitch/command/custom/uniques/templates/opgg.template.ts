@@ -2,11 +2,11 @@ import {
   BaseUnique,
   Unique,
   UniqueMetaData,
-  UserStateT,
-  Status
+  Status,
+  UniqueData,
 } from "../../../contract";
 import { compileTriggers, Logger } from "../../../../../../utils";
-import type { DahvidClient, Region } from "dahvidclient";
+import type { Region } from "dahvidclient";
 
 export const buildOpggUnique: Unique = (
   id: string,
@@ -39,13 +39,10 @@ export const buildOpggUnique: Unique = (
       );
     }
 
-    public async run(
-      channel: string,
-      _userstate: UserStateT,
-      _message: string,
-      _self: boolean,
-      api: DahvidClient
-    ): Promise<Status.IGNORE | Status.ERR | Status.OK> {
+    public async run({
+      channel,
+      api,
+    }: UniqueData): Promise<Status> {
       const id = triggers[0].replace("{PREFIX}", "");
       Logger.debug(`Attempting to trigger ${id} unique`);
 

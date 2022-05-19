@@ -7,6 +7,7 @@ import {
   SelfT,
   Status,
   Unique,
+  UniqueData,
   UserStateT,
 } from "./contract";
 import fetchUniques from "./uniques";
@@ -177,18 +178,19 @@ export default class CommandRouter {
           }
         );
 
-      const status = await unique.run(
+      const uniqueData: UniqueData = {
         channel,
         userstate,
         message,
         self,
-        this._api,
-        this.uniques,
-        this.storemap[config.storeId || config.id]
-      );
+        api: this._api,
+        metadata: this.uniques,
+        store: this.storemap[config.storeId || config.id],
+      };
+
+      const status = await unique.run(uniqueData);
 
       if (status === Status.IGNORE) {
-        console.log('we\'re removing it lol')
         delete this.cooldownmap["{GLOBAL}"][config.id];
       }
 

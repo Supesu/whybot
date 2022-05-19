@@ -1,6 +1,6 @@
-import { BaseUnique, UserStateT, Status } from "../../contract";
+import { BaseUnique, UniqueData, Status } from "../../contract";
 import { compileTriggers, Logger } from "../../../../../utils";
-import type { DahvidClient, LeagueItemDTO, Region } from "dahvidclient";
+import type { LeagueItemDTO, Region } from "dahvidclient";
 import { regionMap } from "dahvidclient";
 
 export default class ChallengerUnique extends BaseUnique {
@@ -31,13 +31,7 @@ export default class ChallengerUnique extends BaseUnique {
     );
   }
 
-  public async run(
-    channel: string,
-    _userstate: UserStateT,
-    message: string,
-    _self: boolean,
-    api: DahvidClient
-  ): Promise<Status.IGNORE | Status.ERR | Status.OK> {
+  public async run({ channel, message, api }: UniqueData): Promise<Status> {
     Logger.debug("Attempting to trigger Challenger unique");
 
     const region = (message.split(/\s+/g)[1] || "oce").toLowerCase() as Region;

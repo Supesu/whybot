@@ -1,6 +1,6 @@
-import { BaseUnique, UserStateT, Status } from "../../contract";
+import { BaseUnique, Status, UniqueData } from "../../contract";
 import { compileTriggers, Logger } from "../../../../../utils";
-import type { DahvidClient, Region } from "dahvidclient";
+import type { Region } from "dahvidclient";
 import { regionMap, regionToContinentMap } from "dahvidclient";
 
 export default class SearchUnique extends BaseUnique {
@@ -28,18 +28,12 @@ export default class SearchUnique extends BaseUnique {
     );
   }
 
-  public async run(
-    channel: string,
-    _userstate: UserStateT,
-    message: string,
-    _self: boolean,
-    api: DahvidClient
-  ): Promise<Status.IGNORE | Status.ERR | Status.OK> {
+  public async run({ channel, message, api }: UniqueData): Promise<Status> {
     Logger.debug("Attempting to trigger Search unique");
 
     var [_trigger, _hours, ..._message] = message.split(" ");
     var region = _message.pop();
-    var summonerName = _message.join(" ").replaceAll("\"", ""); // this is to handle names with spaces lol (better than "")
+    var summonerName = _message.join(" ").replaceAll('"', ""); // this is to handle names with spaces lol (better than "")
 
     var hours = Number(_hours);
 

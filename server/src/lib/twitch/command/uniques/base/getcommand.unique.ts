@@ -1,6 +1,9 @@
-import { BaseUnique, Unique, UserStateT, Status } from "../../contract";
+import {
+  BaseUnique,
+  Status,
+  UniqueData,
+} from "../../contract";
 import { compileTriggers, Logger } from "../../../../../utils";
-import type { DahvidClient } from "dahvidclient";
 
 export default class PingUnique extends BaseUnique {
   static UNIQUE_TRIGGERS = ["{PREFIX}getcmd"];
@@ -13,7 +16,7 @@ export default class PingUnique extends BaseUnique {
         type: "inbuilt",
       },
       metadata: {
-        description: "Get the id of command from its trigger"
+        description: "Get the id of command from its trigger",
       },
       id: "Z0qLJYi9uDnFMQuEcMgA",
     };
@@ -26,14 +29,11 @@ export default class PingUnique extends BaseUnique {
     );
   }
 
-  public async run(
-    channel: string,
-    _userstate: UserStateT,
-    message: string,
-    _self: boolean,
-    _api: DahvidClient,
-    metadata: Unique[]
-  ): Promise<Status.IGNORE | Status.ERR | Status.OK> {
+  public async run({
+    channel,
+    message,
+    metadata,
+  }: UniqueData): Promise<Status.IGNORE | Status.ERR | Status.OK> {
     Logger.debug("Attempting to trigger CMD unique");
 
     const query = compileTriggers([message.split(/\s+/g)[1]])[0];
