@@ -28,7 +28,7 @@ export class Store {
   /**
    * @example write("users", []);
    */
-  public async write(key: string, data: any): Promise<boolean> {
+  public write(key: string, data: any): boolean {
     this.local[key] = data;
     return true;
   }

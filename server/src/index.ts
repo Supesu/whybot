@@ -10,7 +10,7 @@ import { DatabaseClient } from "./lib/database";
 // Main loop
 void (async () => {
   //? initalize config
-  const config = Config.createConfigFromEnv(process.env, ["supesuOCE", "whynotbefriends"]);
+  const config = Config.createConfigFromEnv(process.env, ["supesuOCE"]);
 
   //? initalize database
   const database = new DatabaseClient({

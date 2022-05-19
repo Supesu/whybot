@@ -18,6 +18,12 @@ import { buildCustomUniques } from "./custom";
 import type { Express } from "express";
 import type { DatabaseClient } from "../../database";
 
+type UniqueId = string;
+type CooldownMap = {
+  "{GLOBAL}": Record<UniqueId, number>;
+  [userId: string]: Record<UniqueId, number>;
+};
+
 export default class CommandRouter {
   private readonly _api: DahvidClient;
   private readonly client: ClientInterface;
@@ -26,6 +32,7 @@ export default class CommandRouter {
   private storemap: Record<string, Store>;
   private ordinaries: Ordinary[];
   private uniques: Unique[];
+  private cooldownmap: CooldownMap;
 
   static async create(
     client: ClientInterface,
@@ -61,6 +68,9 @@ export default class CommandRouter {
     this.client = client;
     this.uniques = uniques;
     this.ordinaries = ordinaries;
+    this.cooldownmap = {
+      "{GLOBAL}": {},
+    };
 
     this.startApi();
   }
@@ -127,6 +137,37 @@ export default class CommandRouter {
     try {
       const config = rawunique.getConfig();
 
+      // cooldown has been set
+      if (this.cooldownmap["{GLOBAL}"][config.id]) {
+        const now = new Date().getTime();
+
+        if (this.cooldownmap["{GLOBAL}"][config.id] < now) {
+          delete this.cooldownmap["{GLOBAL}"][config.id];
+        } else {
+          const cooldownLeft =
+            ((now - this.cooldownmap["{GLOBAL}"][config.id]) / 60000) | 0;
+
+          this.client.say(
+            channel,
+            `Please wait ${Math.abs(
+              cooldownLeft
+            )} minutes before running this command`
+          );
+          return Promise.resolve([Status.IGNORE]);
+        }
+      }
+
+      if (config.cooldown) {
+        // test whether or not to apply globally
+        if (config.cooldown.global) {
+          const now = new Date().getTime();
+          this.cooldownmap["{GLOBAL}"][config.id] = now + config.cooldown.time;
+        } else {
+          // individually apply cooldown
+          //TODO: Implement this
+        }
+      }
+
       if (config.store && !this.storemap[config.storeId || config.id])
         this.storemap[config.storeId || config.id] = await Store.create(
           this.database,
@@ -136,7 +177,7 @@ export default class CommandRouter {
           }
         );
 
-      await unique.run(
+      const status = await unique.run(
         channel,
         userstate,
         message,
@@ -145,6 +186,13 @@ export default class CommandRouter {
         this.uniques,
         this.storemap[config.storeId || config.id]
       );
+
+      if (status === Status.IGNORE) {
+        console.log('we\'re removing it lol')
+        delete this.cooldownmap["{GLOBAL}"][config.id];
+      }
+
+      // todo: switch statement
 
       return [Status.OK];
     } catch (e: any) {

@@ -1,4 +1,4 @@
-import { BaseUnique, Unique, UserStateT } from "../../contract";
+import { BaseUnique, Unique, UserStateT, Status } from "../../contract";
 import { compileTriggers, Logger } from "../../../../../utils";
 import type { DahvidClient } from "dahvidclient";
 import type { Store } from "../../../../store";
@@ -14,7 +14,7 @@ export default class GetGullibleCountUnique extends BaseUnique {
         type: "inbuilt",
       },
       metadata: {
-        description: "BOOZOZOOZOZOZO"
+        description: "BOOZOZOOZOZOZO",
       },
       store: true,
       storeId: "FMQuEcMgAZ0qLJYi9uDn",
@@ -37,13 +37,13 @@ export default class GetGullibleCountUnique extends BaseUnique {
     _api: DahvidClient,
     _metadata: Unique[],
     store: Store
-  ): Promise<void> {
+  ): Promise<Status.IGNORE | Status.ERR | Status.OK> {
     Logger.debug("Attempting to trigger GetGullibleCount unique");
     var users: string[] = store.read("users");
 
     this.client.say(channel, `bozos: ${users.length}`);
 
     Logger.debug("GetGullibleCount unique has been triggered");
-    return Promise.resolve();
+    return Promise.resolve(Status.OK);
   }
 }

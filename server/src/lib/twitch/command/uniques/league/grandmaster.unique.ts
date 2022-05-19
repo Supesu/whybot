@@ -1,4 +1,4 @@
-import { BaseUnique, UserStateT } from "../../contract";
+import { BaseUnique, UserStateT, Status } from "../../contract";
 import { compileTriggers, Logger } from "../../../../../utils";
 import type { DahvidClient, LeagueItemDTO, Region } from "dahvidclient";
 import { regionMap } from "dahvidclient";
@@ -34,7 +34,7 @@ export default class GrandmasterUnique extends BaseUnique {
     message: string,
     _self: boolean,
     api: DahvidClient
-  ): Promise<void> {
+  ): Promise<Status.IGNORE | Status.ERR | Status.OK> {
     Logger.debug("Attempting to trigger Grandmaster unique");
     const region = (message.split(/\s+/g)[1] || "oce").toLowerCase() as Region;
 
@@ -57,6 +57,6 @@ export default class GrandmasterUnique extends BaseUnique {
     );
 
     Logger.debug("Grandmaster unique has been triggered");
-    return Promise.resolve();
+    return Promise.resolve(Status.OK);
   }
 }

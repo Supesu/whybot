@@ -71,7 +71,7 @@ export class BaseUnique implements UniqueInterface {
     _api: DahvidClient,
     _metadata: Unique[],
     _store: Store
-  ): Promise<void> {
+  ): Promise<Status.IGNORE | Status.ERR | Status.OK> {
     return Promise.reject(Logger.fatal("This method needs to be implemented"));
   }
 }
@@ -95,7 +95,7 @@ export class BaseOrdinary implements OrdinaryInterface {
     _message: MessageT,
     _self: SelfT,
     _api: DahvidClient
-  ): Promise<void> {
+  ): Promise<Status.IGNORE | Status.ERR | Status.OK> {
     return Promise.reject(Logger.fatal("This method needs to be implemented"));
   }
 }

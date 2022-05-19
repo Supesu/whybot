@@ -21,6 +21,14 @@ export default class Client implements ClientInterface {
     return this.client.say(channel, message);
   }
 
+  ban(
+    channel: string,
+    username: string,
+    reason: string
+  ): Promise<[string, string, string]> {
+    return this.client.ban(channel, username, reason);
+  }
+
   startListeners() {
     this.client.on("disconnected", (err) => {
       console.log(err);
@@ -28,8 +36,8 @@ export default class Client implements ClientInterface {
     });
 
     this.client.on("reconnect", () => {
-      Logger.info("Reconnected to twitch")
-    })
+      Logger.info("Reconnected to twitch");
+    });
   }
 
   handleMessage(handler: OnMessageHandler) {

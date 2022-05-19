@@ -1,4 +1,4 @@
-import { BaseUnique, Unique, UserStateT } from "../../contract";
+import { BaseUnique, Unique, UserStateT, Status } from "../../contract";
 import { compileTriggers, Logger } from "../../../../../utils";
 import type { DahvidClient } from "dahvidclient";
 import type { Store } from "../../../../store";
@@ -15,7 +15,7 @@ export default class GullibleUnique extends BaseUnique {
       },
       store: true,
       metadata: {
-        description: "I mean it does something tbf"
+        description: "I mean it does something tbf",
       },
       id: "FMQuEcMgAZ0qLJYi9uDn",
     };
@@ -36,22 +36,22 @@ export default class GullibleUnique extends BaseUnique {
     _api: DahvidClient,
     _metadata: Unique[],
     store: Store
-  ): Promise<void> {
+  ): Promise<Status.IGNORE | Status.ERR | Status.OK> {
     Logger.debug("Attempting to trigger Gullible unique");
     var users: string[] = store.read("users");
 
     if (!users) {
-      await store.write("users", []);
+      store.write("users", []);
       users = store.read("users");
     }
 
     if (!users.includes(userstate["display-name"]!)) {
-      await store.write("users", [...users, userstate["display-name"]]);
+      store.write("users", [...users, userstate["display-name"]]);
 
       store.persist();
     }
 
     Logger.debug("Gullible unique has been triggered");
-    return Promise.resolve();
+    return Promise.resolve(Status.OK);
   }
 }

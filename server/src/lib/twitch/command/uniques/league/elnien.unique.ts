@@ -1,4 +1,4 @@
-import { BaseUnique, UserStateT } from "../../contract";
+import { BaseUnique, UserStateT, Status } from "../../contract";
 import { compileTriggers, Logger } from "../../../../../utils";
 import type { DahvidClient } from "dahvidclient";
 
@@ -70,7 +70,7 @@ export default class ElnienUnique extends BaseUnique {
     message: string,
     _self: boolean,
     _api: DahvidClient
-  ): Promise<void> {
+  ): Promise<Status.IGNORE | Status.ERR | Status.OK> {
     Logger.debug("Attempting to trigger Elnien unique");
     var [_command, _level, ..._message] = message.split(/\s+/g);
     const level = Number(_level);
@@ -79,7 +79,7 @@ export default class ElnienUnique extends BaseUnique {
         channel,
         `Usage: ${process.env.PREFIX}L9 {level 1-5} {text}`
       );
-      return;
+      return Promise.resolve(Status.IGNORE);
     }
 
     const first_pass = _message
@@ -132,6 +132,6 @@ export default class ElnienUnique extends BaseUnique {
     this.client.say(channel, second_pass.join(""));
 
     Logger.debug("Elnien unique has been triggered");
-    return Promise.resolve();
+    return Promise.resolve(Status.OK);
   }
 }

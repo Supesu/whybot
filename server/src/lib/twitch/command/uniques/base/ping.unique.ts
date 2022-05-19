@@ -1,4 +1,4 @@
-import { BaseUnique, UserStateT } from "../../contract";
+import { BaseUnique, UserStateT, Status } from "../../contract";
 import { compileTriggers, Logger } from "../../../../../utils";
 import type { DahvidClient } from "dahvidclient";
 
@@ -32,7 +32,7 @@ export default class PingUnique extends BaseUnique {
     _message: string,
     _self: boolean,
     _api: DahvidClient
-  ): Promise<void> {
+  ): Promise<Status.IGNORE | Status.ERR | Status.OK> {
     Logger.debug("Attempting to trigger Ping unique");
 
     const ping = (await this.client.getPing())[0] * 1000;
@@ -40,6 +40,6 @@ export default class PingUnique extends BaseUnique {
     this.client.say(channel, `${ping}ms`);
 
     Logger.debug("Ping unique has been triggered");
-    return Promise.resolve();
+    return Promise.resolve(Status.OK);
   }
 }

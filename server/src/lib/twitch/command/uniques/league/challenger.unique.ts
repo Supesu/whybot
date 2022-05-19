@@ -1,4 +1,4 @@
-import { BaseUnique, UserStateT } from "../../contract";
+import { BaseUnique, UserStateT, Status } from "../../contract";
 import { compileTriggers, Logger } from "../../../../../utils";
 import type { DahvidClient, LeagueItemDTO, Region } from "dahvidclient";
 import { regionMap } from "dahvidclient";
@@ -17,7 +17,7 @@ export default class ChallengerUnique extends BaseUnique {
         type: "inbuilt",
       },
       metadata: {
-        description: "Lowest LP for challenger in a region"
+        description: "Lowest LP for challenger in a region",
       },
       id: "OgrbqhkdVW8wzbt5PIU6",
     };
@@ -37,7 +37,7 @@ export default class ChallengerUnique extends BaseUnique {
     message: string,
     _self: boolean,
     api: DahvidClient
-  ): Promise<void> {
+  ): Promise<Status.IGNORE | Status.ERR | Status.OK> {
     Logger.debug("Attempting to trigger Challenger unique");
 
     const region = (message.split(/\s+/g)[1] || "oce").toLowerCase() as Region;
@@ -60,6 +60,6 @@ export default class ChallengerUnique extends BaseUnique {
     );
 
     Logger.debug("Challenger unique has been triggered");
-    return Promise.resolve();
+    return Promise.resolve(Status.OK);
   }
 }

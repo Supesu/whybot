@@ -3,6 +3,7 @@ import {
   ChannelT,
   MessageT,
   SelfT,
+  Status,
   UserStateT,
 } from "../../contract";
 import { Logger } from "../../../../../utils";
@@ -22,10 +23,10 @@ export default class TestOrdinary extends BaseOrdinary {
     _message: MessageT,
     _self: SelfT,
     _api: DahvidClient
-  ): Promise<void> {
+  ): Promise<Status.IGNORE | Status.ERR | Status.OK> {
     Logger.debug("Attempting to trigger Ordinary command");
     this.client.say(channel, "HAHA ur so cringe");
     Logger.debug("Test Ordinary has been triggered");
-    return Promise.resolve();
+    return Promise.resolve(Status.OK);
   }
 }

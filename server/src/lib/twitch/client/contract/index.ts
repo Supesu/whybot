@@ -14,4 +14,9 @@ export interface ClientInterface {
   getPing(): Promise<[number]>;
   say(channel: string, message: string): Promise<[string]>;
   startListeners(): void;
+  ban(
+    channel: string,
+    username: string,
+    reason: string
+  ): Promise<[string, string, string]>;
 }

@@ -1,4 +1,4 @@
-import { BaseUnique, Unique, UserStateT } from "../../contract";
+import { BaseUnique, Unique, UserStateT, Status } from "../../contract";
 import { compileTriggers, Logger } from "../../../../../utils";
 import type { DahvidClient } from "dahvidclient";
 import type { Store } from "../../../../store";
@@ -16,7 +16,7 @@ export default class CurrentDittoUnique extends BaseUnique {
       storeId: "ouebxbmmRN74j8nW9sGU",
       store: true,
       metadata: {
-        description: "Retrieve the current ditto"
+        description: "Retrieve the current ditto",
       },
       id: "AyvBeRZ1jUbUMkHXmgRq",
     };
@@ -37,13 +37,13 @@ export default class CurrentDittoUnique extends BaseUnique {
     _api: DahvidClient,
     _metadata: Unique[],
     store: Store
-  ): Promise<void> {
+  ): Promise<Status.IGNORE | Status.ERR | Status.OK> {
     Logger.debug("Attempting to trigger Current unique");
     var response: string = store.read("response");
 
-    this.client.say(channel, response || "No ditto selected, run !updateditto")
+    this.client.say(channel, response || "No ditto selected, run !updateditto");
 
     Logger.debug("Current Unique has been triggered");
-    return Promise.resolve();
+    return Promise.resolve(Status.OK);
   }
 }

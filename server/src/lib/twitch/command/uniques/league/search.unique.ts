@@ -1,4 +1,4 @@
-import { BaseUnique, UserStateT } from "../../contract";
+import { BaseUnique, UserStateT, Status } from "../../contract";
 import { compileTriggers, Logger } from "../../../../../utils";
 import type { DahvidClient, Region } from "dahvidclient";
 import { regionMap, regionToContinentMap } from "dahvidclient";
@@ -34,7 +34,7 @@ export default class SearchUnique extends BaseUnique {
     message: string,
     _self: boolean,
     api: DahvidClient
-  ): Promise<void> {
+  ): Promise<Status.IGNORE | Status.ERR | Status.OK> {
     Logger.debug("Attempting to trigger Search unique");
 
     var [_trigger, _hours, ..._message] = message.split(" ");
@@ -53,22 +53,22 @@ export default class SearchUnique extends BaseUnique {
           process.env.PREFIX
         )
       );
-      return Promise.resolve();
+      return Promise.resolve(Status.IGNORE);
     }
 
     if (isNaN(hours)) {
       this.client.say(channel, "Hours must be a number");
-      return Promise.resolve();
+      return Promise.resolve(Status.IGNORE);
     }
 
     if (hours > 168) {
       this.client.say(channel, "I cannot search past 168 hours!");
-      return Promise.resolve();
+      return Promise.resolve(Status.IGNORE);
     }
 
     if (!regionMap[region.toLowerCase()]) {
       this.client.say(channel, "invalid region (Example: OCE)!");
-      return Promise.resolve();
+      return Promise.resolve(Status.IGNORE);
     }
 
     const continent = regionToContinentMap[region.toLowerCase()];
@@ -82,7 +82,7 @@ export default class SearchUnique extends BaseUnique {
         channel,
         `User "${summonerName}" does not exist in region ${region.toUpperCase()}`
       );
-      return Promise.resolve();
+      return Promise.resolve(Status.IGNORE);
     }
 
     const X_HOURS = 60 * 60 * hours; // 60 * 60 = 3600 seconds in an hour
@@ -103,6 +103,6 @@ export default class SearchUnique extends BaseUnique {
     );
 
     Logger.debug("Search unique has been triggered");
-    return Promise.resolve();
+    return Promise.resolve(Status.OK);
   }
 }

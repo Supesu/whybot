@@ -1,4 +1,4 @@
-import { BaseUnique, Unique, UserStateT } from "../../contract";
+import { BaseUnique, Unique, UserStateT, Status } from "../../contract";
 import { compileTriggers, Logger } from "../../../../../utils";
 import type { DahvidClient } from "dahvidclient"; 
 import type { Store } from "../../../../store";
@@ -37,7 +37,7 @@ export default class SetDittoUnique extends BaseUnique {
     _api: DahvidClient,
     _metadata: Unique[],
     store: Store
-  ): Promise<void> {
+  ): Promise<Status.IGNORE | Status.ERR | Status.OK> {
     Logger.debug("Attempting to trigger Set unique");
     if (
       "#" + userstate["display-name"]!.toLowerCase() !==
@@ -45,7 +45,7 @@ export default class SetDittoUnique extends BaseUnique {
     ) {
       this.client.say(channel, "You don't have access to this sorry");
 
-      return Promise.resolve();
+      return Promise.resolve(Status.IGNORE);
     }
 
     const name = message.split(" ");
@@ -54,7 +54,7 @@ export default class SetDittoUnique extends BaseUnique {
       this.client.say(channel, "please provide a user");
 
       Logger.debug("Set Unique has been triggered");
-      return Promise.resolve();
+      return Promise.resolve(Status.IGNORE);
     }
 
     const cached_response =
@@ -66,6 +66,6 @@ export default class SetDittoUnique extends BaseUnique {
     await store.persist();
 
     Logger.debug("Set Unique has been triggered");
-    return Promise.resolve();
+    return Promise.resolve(Status.OK);
   }
 }

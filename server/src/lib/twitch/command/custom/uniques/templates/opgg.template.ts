@@ -3,6 +3,7 @@ import {
   Unique,
   UniqueMetaData,
   UserStateT,
+  Status
 } from "../../../contract";
 import { compileTriggers, Logger } from "../../../../../../utils";
 import type { DahvidClient, Region } from "dahvidclient";
@@ -44,7 +45,7 @@ export const buildOpggUnique: Unique = (
       _message: string,
       _self: boolean,
       api: DahvidClient
-    ): Promise<void> {
+    ): Promise<Status.IGNORE | Status.ERR | Status.OK> {
       const id = triggers[0].replace("{PREFIX}", "");
       Logger.debug(`Attempting to trigger ${id} unique`);
 
@@ -54,7 +55,7 @@ export const buildOpggUnique: Unique = (
       this.client.say(channel, `https://op.gg/summoners/${region}/${name}`);
 
       Logger.debug(`${id} unique has been triggered`);
-      return Promise.resolve();
+      return Promise.resolve(Status.OK);
     }
   };
 };
