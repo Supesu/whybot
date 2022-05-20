@@ -40,6 +40,15 @@ export default class Client implements ClientInterface {
     });
   }
 
+  timeout(
+    channel: string,
+    username: string,
+    length: number,
+    reason: string
+  ): Promise<[string, string, number, string]> {
+    return this.client.timeout(channel, username, length, reason);
+  }
+
   handleMessage(handler: OnMessageHandler) {
     this.client.on("message", handler);
     Logger.debug("Binded Message Handler To Client");

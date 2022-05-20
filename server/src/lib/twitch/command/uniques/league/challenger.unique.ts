@@ -38,12 +38,15 @@ export default class ChallengerUnique extends BaseUnique {
     const lowestLP = await Promise.all([
       api.league.challengerLeagues("RANKED_SOLO_5x5", region),
       api.league.grandmasterLeagues("RANKED_SOLO_5x5", region),
-    ]).then(([grandmasterLeagues, challengerLeagues]) => {
+    ]).then(([challengerLeagues, grandmasterLeagues]) => {
       const _leagues: LeagueItemDTO[] = grandmasterLeagues.entries
         .concat(challengerLeagues.entries)
         .sort((a, b) => b.leaguePoints - a.leaguePoints);
 
-      return _leagues[challengerLeagues.entries.length - 1].leaguePoints + 1;
+      const amountOfChallengers = challengerLeagues.entries.length;
+      console.log(amountOfChallengers);
+
+      return _leagues[amountOfChallengers - 1].leaguePoints + 1;
     });
 
     this.client.say(

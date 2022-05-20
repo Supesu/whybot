@@ -14,6 +14,7 @@ export interface ClientInterface {
   getPing(): Promise<[number]>;
   say(channel: string, message: string): Promise<[string]>;
   startListeners(): void;
+  timeout(channel: string, username: string, length: number, reason: string): Promise<[string, string, number, string]>;
   ban(
     channel: string,
     username: string,

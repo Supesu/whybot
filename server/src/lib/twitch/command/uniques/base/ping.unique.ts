@@ -1,6 +1,5 @@
-import { BaseUnique, UserStateT, Status } from "../../contract";
+import { BaseUnique, Status, UniqueData } from "../../contract";
 import { compileTriggers, Logger } from "../../../../../utils";
-import type { DahvidClient } from "dahvidclient";
 
 export default class PingUnique extends BaseUnique {
   static UNIQUE_TRIGGERS = ["{PREFIX}ping"];
@@ -13,7 +12,7 @@ export default class PingUnique extends BaseUnique {
         type: "inbuilt",
       },
       metadata: {
-        description: "Retrieve the ping from the internal client -> twitch"
+        description: "Retrieve the ping from the internal client -> twitch",
       },
       id: "FMQuEcMgAZ0qLJYi9uDn",
     };
@@ -26,13 +25,7 @@ export default class PingUnique extends BaseUnique {
     );
   }
 
-  public async run(
-    channel: string,
-    _userstate: UserStateT,
-    _message: string,
-    _self: boolean,
-    _api: DahvidClient
-  ): Promise<Status.IGNORE | Status.ERR | Status.OK> {
+  public async run({ channel }: UniqueData): Promise<Status> {
     Logger.debug("Attempting to trigger Ping unique");
 
     const ping = (await this.client.getPing())[0] * 1000;

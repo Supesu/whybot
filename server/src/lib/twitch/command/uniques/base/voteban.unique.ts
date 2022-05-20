@@ -6,7 +6,8 @@ import {
 import { compileTriggers, Logger } from "../../../../../utils";
 
 const FIVE_MINUTES = 1000 * 60 * 5; // 5 minutes in ms
-const FOURTY_SECONDS = 1000 * 40;
+const THIRTY_MINUTES = 1000 * 60 * 30;
+const THREE_MINUTES = 1000 * 60 * 3;
 
 export default class VoteBanUnique extends BaseUnique {
   static UNIQUE_TRIGGERS = ["{PREFIX}startvote", "{PREFIX}voteban"];
@@ -95,7 +96,7 @@ export default class VoteBanUnique extends BaseUnique {
 
       if (end_weight > 0) {
         this.client
-          .ban(channel, target, "voteban command | success")
+          .timeout(channel, target, THIRTY_MINUTES, `VOTEBAN | ${reason}`)
           .then(() => {
             this.client.say(
               channel,
@@ -107,7 +108,7 @@ export default class VoteBanUnique extends BaseUnique {
         this.client.say(channel, "The voteban was not successful");
         //TODO:
       }
-    }, FOURTY_SECONDS);
+    }, THREE_MINUTES);
 
     Logger.debug("VoteBan unique has been triggered");
     return Promise.resolve(Status.OK);

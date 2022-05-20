@@ -6,11 +6,12 @@ import { Logger } from "./utils";
 import { Config } from "./config";
 import { Client, Router } from "./lib/twitch";
 import { DatabaseClient } from "./lib/database";
+import { Analytics } from "./lib/analytics";
 
-// Main loop
+// Main function
 void (async () => {
   //? initalize config
-  const config = Config.createConfigFromEnv(process.env, ["supesuOCE"]);
+  const config = Config.createConfigFromEnv(process.env, ["supesuOCE", "whynotbefriends"]);
 
   //? initalize database
   const database = new DatabaseClient({

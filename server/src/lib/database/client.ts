@@ -7,6 +7,8 @@ import {
   setDoc,
   doc,
   getDoc,
+  writeBatch,
+  WriteBatch,
 } from "firebase/firestore";
 import { getAuth, signInAnonymously } from "firebase/auth";
 import type { FirebaseOptions, FirebaseApp } from "firebase/app";
@@ -47,6 +49,10 @@ export class DatabaseClient {
     });
   }
 
+  public async createBatch(): Promise<WriteBatch> {
+    return writeBatch(this.db);
+  }
+
   public async deleteFromColletionWithId(
     collectionName: string,
     id: string
@@ -64,6 +70,10 @@ export class DatabaseClient {
     const docRef = doc(this.db, collectionName, id);
     await setDoc(docRef, data);
     return true;
+  }
+
+  public getDb() {
+    return this.db;
   }
 
   public async storeInCollectionWithId(
