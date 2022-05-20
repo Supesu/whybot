@@ -6,7 +6,6 @@ import { Logger } from "./utils";
 import { Config } from "./config";
 import { Client, Router } from "./lib/twitch";
 import { DatabaseClient } from "./lib/database";
-import { Analytics } from "./lib/analytics";
 
 // Main function
 void (async () => {
