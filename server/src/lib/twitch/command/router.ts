@@ -1,5 +1,7 @@
+import moment from "moment";
 import { Logger } from "../../../utils";
 import { ClientInterface } from "../client/contract";
+import { Analytics } from "../../analytics";
 import {
   ChannelT,
   MessageT,
@@ -30,6 +32,7 @@ export default class CommandRouter {
   private readonly client: ClientInterface;
   private readonly database: DatabaseClient;
   private readonly app: Express;
+  private analytics: Analytics;
   private storemap: Record<string, Store>;
   private ordinaries: Ordinary[];
   private uniques: Unique[];
@@ -72,8 +75,16 @@ export default class CommandRouter {
     this.cooldownmap = {
       "{GLOBAL}": {},
     };
+    this.initalizeAnalyticsClient(database);
 
     this.startApi();
+  }
+
+  /**
+   * @internal
+   */
+  private async initalizeAnalyticsClient(database: DatabaseClient) {
+    this.analytics = await Analytics.create(database);
   }
 
   /**
@@ -122,6 +133,8 @@ export default class CommandRouter {
     message: MessageT,
     self: SelfT
   ): Promise<[Status.OK] | [Status.IGNORE] | [Status.ERR, string]> {
+    if (self) return Promise.resolve([Status.IGNORE]);
+
     const [unique, rawunique] = this.findUnique(message);
 
     if (!unique) {
@@ -145,14 +158,13 @@ export default class CommandRouter {
         if (this.cooldownmap["{GLOBAL}"][config.id] < now) {
           delete this.cooldownmap["{GLOBAL}"][config.id];
         } else {
-          const cooldownLeft =
-            ((now - this.cooldownmap["{GLOBAL}"][config.id]) / 60000) | 0;
+          const cooldownLeft = moment(
+            new Date(this.cooldownmap["{GLOBAL}"][config.id])
+          ).from(new Date());
 
           this.client.say(
             channel,
-            `Please wait ${Math.abs(
-              cooldownLeft
-            )} minutes before running this command`
+            `You can run this command again ${cooldownLeft}`
           );
           return Promise.resolve([Status.IGNORE]);
         }
@@ -190,11 +202,18 @@ export default class CommandRouter {
 
       const status = await unique.run(uniqueData);
 
-      if (status === Status.IGNORE) {
-        delete this.cooldownmap["{GLOBAL}"][config.id];
+      switch (status) {
+        case Status.IGNORE:
+          this.analytics.ignoredRun(config.id);
+          delete this.cooldownmap["{GLOBAL}"][config.id];
+          break;
+        case Status.ERR:
+          this.analytics.failedRun(config.id);
+          break;
+        case Status.OK:
+          this.analytics.successfulRun(config.id);
+          break;
       }
-
-      // todo: switch statement
 
       return [Status.OK];
     } catch (e: any) {

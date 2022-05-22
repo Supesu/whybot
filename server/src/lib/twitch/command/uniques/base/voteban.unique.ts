@@ -1,12 +1,9 @@
-import {
-  BaseUnique,
-  Status,
-  UniqueData,
-} from "../../contract";
+import { BaseUnique, Status, UniqueData } from "../../contract";
 import { compileTriggers, Logger } from "../../../../../utils";
 
 const FIVE_MINUTES = 1000 * 60 * 5; // 5 minutes in ms
 const THIRTY_MINUTES = 1000 * 60 * 30;
+const ONE_MINUTE = 1000 * 60;
 const THREE_MINUTES = 1000 * 60 * 3;
 
 export default class VoteBanUnique extends BaseUnique {
@@ -90,22 +87,45 @@ export default class VoteBanUnique extends BaseUnique {
     store.write("isVoteInProgress", true);
     store.write("weight", 0);
     store.write("users", []);
-    setTimeout(() => {
+
+    const interval = setInterval(() => {
+      this.client.say(
+        channel,
+        `${
+          userstate["display-name"]
+        } has started a vote against ${target} for the reason "${reason.join(
+          " "
+        )}" | Vote with !agree or !disagree`
+      );
+    }, ONE_MINUTE);
+
+    setTimeout(async () => {
       const end_weight = store.read("weight");
+      clearInterval(interval);
       store.write("isVoteInProgress", false);
 
       if (end_weight > 0) {
         this.client
-          .timeout(channel, target, THIRTY_MINUTES, `VOTEBAN | ${reason}`)
+          .timeout(
+            channel,
+            target,
+            THIRTY_MINUTES / 1000,
+            `${reason} | VOTEBAN`
+          )
           .then(() => {
             this.client.say(
               channel,
-              `${target} was banned after losing the vote.`
+              `The voteban against ${target} was sucessful`
             );
           })
-          .catch(() => {});
+          .catch((err) => {
+            console.error(err);
+          });
       } else {
-        this.client.say(channel, "The voteban was not successful");
+        this.client.say(
+          channel,
+          `The voteban against ${target} was not successful`
+        );
         //TODO:
       }
     }, THREE_MINUTES);
