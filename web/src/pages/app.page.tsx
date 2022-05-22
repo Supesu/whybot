@@ -4,6 +4,7 @@ import type { ReactElement, FC } from "react";
 import { PlusIcon } from "../icons";
 import { Formik, Form, Field } from "formik";
 import { Navigate } from "react-router-dom";
+import { RegionSelector, TypeSelector } from "../components";
 
 type CommandData =
   | {
@@ -76,68 +77,54 @@ export const App: FC<AppProps> = ({ apiKey }: AppProps): ReactElement => {
     if (!isAuthenticated) return;
 
     const __prod__ = true;
-    const url = __prod__ ? "whybotapi.supesu.dev" : "192.168.50.112:4040";
+    const url = __prod__ ? "whybotapi.supesu.dev" : "localhost:4040";
     const protocol = __prod__ ? "https" : "http";
 
     axios
-      .get(protocol + "://" + url + "/api/v1/uniques/fetch?local=true")
+      .get(protocol + "://" + url + "/api/v1/uniques/fetch")
       .then((data) => data.data.data)
       .then((data) => {
         setCommands(data.local);
       });
   }, [isAuthenticated]);
 
-  interface createUniqueConfig {
+  interface CreateOpggUniqueConfig {
+    type: "opgg";
+    summonerName: string;
+    region: string;
     triggers: string;
-    response?: string;
-    region?: string;
-    summonerName?: string;
-    description: string;
-    type: "base" | "opgg" | "track";
+    metadata: {
+      description: string;
+    };
   }
 
-  const createUnique = ({
-    triggers,
-    response,
-    type,
-    description,
-    region,
-    summonerName,
-  }: createUniqueConfig) => {
-    console.log("someone tried to submit");
-    if (!triggers || triggers === "" || !description || description === "")
-      return;
-
-    if (type === "base" && (!response || response === "")) return;
-    
-    // FAILS HERE 
-    if (
-      (type === "track" || type === "opgg") &&
-      (!summonerName || summonerName === "" || !region || region === "")
-    )
-      return;
-
-    const _template: Record<string, Record<string, string | string[]>> = {
-      data: {
-        triggers: triggers.includes(",") ? triggers.split(",") : [triggers],
-      },
-      metadata: {
-        description,
-      },
+  interface CreateBaseUniqueConfig {
+    type: "base";
+    response: string;
+    triggers: string;
+    metadata: {
+      description: string;
     };
+  }
 
-    if (type === "base") {
-      _template["data"]["response"] = response!;
-    }
+  interface CreateTrackUniqueConfig {
+    type: "track";
+    summonerName: string;
+    triggers: string;
+    metadata: {
+      description: string;
+    };
+  }
 
-    if (type === "opgg" || type === "track") {
-      _template["data"]["summonerName"] = summonerName!;
-      _template["data"]["region"] = region!;
-    }
+  type CreateUniqueConfig =
+    | CreateBaseUniqueConfig
+    | CreateOpggUniqueConfig
+    | CreateTrackUniqueConfig;
 
-    _template["data"]["type"] = type!;
+  const createUnique = (config: CreateUniqueConfig) => {
+    console.log("attempting to make unique");
 
-    console.log(_template);
+    console.log(config);
   };
 
   if (!isAuthenticated) {
@@ -172,20 +159,38 @@ export const App: FC<AppProps> = ({ apiKey }: AppProps): ReactElement => {
                 type: "base",
                 description: "",
                 triggers: "",
-                region: "",
+                region: "oce",
                 response: "",
                 summonerName: "",
               }}
               onSubmit={async (values) => {
-                type validType = "base" | "opgg" | "track";
-                createUnique({
-                  description: values.description,
-                  triggers: values.triggers,
-                  region: values.region,
-                  response: values.response,
-                  summonerName: values.summonerName,
-                  type: values.type as validType,
-                });
+                type ValidType = "base" | "opgg" | "track";
+
+                const triggers = values.triggers.split(",");
+                const filtered_triggers = triggers.filter(
+                  (trigger) => trigger && trigger.includes("{PREFIX}")
+                );
+
+                const generic_config: Record<any, any> = {
+                  metadata: {
+                    description: values.description,
+                  },
+                  triggers: filtered_triggers,
+                  type: values.type as ValidType,
+                };
+
+                switch (values.type) {
+                  case "base":
+                    generic_config["response"] = values.response;
+                    break;
+                  case "opgg":
+                  case "track":
+                    generic_config["summonerName"] = values.summonerName;
+                    generic_config["region"] = values.region;
+                    break;
+                }
+
+                createUnique(generic_config as CreateUniqueConfig);
               }}
             >
               {({ values, setFieldValue }) => (
@@ -193,41 +198,29 @@ export const App: FC<AppProps> = ({ apiKey }: AppProps): ReactElement => {
                   className="flex flex-col m-auto w-[40rem] h-[30rem] bg-[#282630] rounded-xl"
                   id="overlay"
                 >
-                  <select
-                    name="uniqueType"
-                    id="uniqueType"
+                  <TypeSelector
                     value={values.type}
-                    onChange={(e) => setFieldValue("type", e.target.value)}
-                    style={{ display: "block" }}
-                  >
-                    <option value="base" label="base">
-                      {" "}
-                      base
-                    </option>
-                    <option value="opgg" label="opgg">
-                      {" "}
-                      opgg
-                    </option>
-                    <option value="track" label="track">
-                      {" "}
-                      track
-                    </option>
-                  </select>
+                    onChange={(e) => {
+                      console.log("changed");
+                      setFieldValue("type", e.target.value);
+                    }}
+                  />
+
+                  <Field
+                    name="triggers"
+                    autoComplete="off"
+                    type="text"
+                    placeholder="{PREFIX}test,{PREFIX}t"
+                  />
+                  <Field
+                    name="description"
+                    autoComplete="off"
+                    type="text"
+                    placeholder="Description"
+                  />
 
                   {values.type === "base" && (
                     <Fragment>
-                      <Field
-                        name="triggers"
-                        autoComplete="off"
-                        type="text"
-                        placeholder="{PREFIX}test,{PREFIX}t"
-                      />
-                      <Field
-                        name="description"
-                        autoComplete="off"
-                        type="text"
-                        placeholder="Description"
-                      />
                       <Field
                         name="response"
                         autoComplete="off"
@@ -237,136 +230,20 @@ export const App: FC<AppProps> = ({ apiKey }: AppProps): ReactElement => {
                     </Fragment>
                   )}
 
-                  {values.type === "opgg" && (
+                  {["track", "opgg"].includes(values.type) && (
                     <Fragment>
-                      <Field
-                        name="triggers"
-                        autoComplete="off"
-                        type="text"
-                        placeholder="{PREFIX}test,{PREFIX}t"
-                      />
-                      <Field
-                        name="description"
-                        autoComplete="off"
-                        type="text"
-                        placeholder="Description"
-                      />
                       <Field
                         name="summonerName"
                         autoComplete="off"
                         type="text"
                         placeholder="Summoner name"
                       />
-                      <select
-                        name="uniqueType"
-                        id="uniqueType"
+                      <RegionSelector
                         value={values.region}
                         onChange={(e) =>
                           setFieldValue("region", e.target.value)
                         }
-                        style={{ display: "block" }}
-                      >
-                        <option value="oce" label="oce">
-                          oce
-                        </option>
-                        <option value="na" label="na">
-                          na
-                        </option>
-                        <option value="br" label="br">
-                          br
-                        </option>
-                        <option value="eune" label="eune">
-                          eune
-                        </option>
-                        <option value="euw" label="euw">
-                          euw
-                        </option>
-                        <option value="kr" label="kr">
-                          kr
-                        </option>
-                        <option value="jp" label="jp">
-                          jp
-                        </option>
-                        <option value="las" label="las">
-                          las
-                        </option>
-                        <option value="lan" label="lan">
-                          lan
-                        </option>
-                        <option value="tr" label="tr">
-                          tr
-                        </option>
-                        <option value="ru" label="ru">
-                          ru
-                        </option>
-                      </select>
-                    </Fragment>
-                  )}
-
-                  {values.type === "track" && (
-                    <Fragment>
-                      <Field
-                        name="triggers"
-                        autoComplete="off"
-                        type="text"
-                        placeholder="{PREFIX}test,{PREFIX}t"
                       />
-                      <Field
-                        name="description"
-                        autoComplete="off"
-                        type="text"
-                        placeholder="Description"
-                      />
-                      <Field
-                        name="summonerName"
-                        autoComplete="off"
-                        type="text"
-                        placeholder="Summoner name"
-                      />
-
-                      <select
-                        name="uniqueType"
-                        id="uniqueType"
-                        value={values.region}
-                        onChange={(e) =>
-                          setFieldValue("region", e.target.value)
-                        }
-                        style={{ display: "block" }}
-                      >
-                        <option value="oce" label="oce">
-                          oce
-                        </option>
-                        <option value="na" label="na">
-                          na
-                        </option>
-                        <option value="br" label="br">
-                          br
-                        </option>
-                        <option value="eune" label="eune">
-                          eune
-                        </option>
-                        <option value="euw" label="euw">
-                          euw
-                        </option>
-                        <option value="kr" label="kr">
-                          kr
-                        </option>
-                        <option value="jp" label="jp">
-                          jp
-                        </option>
-                        <option value="las" label="las">
-                          las
-                        </option>
-                        <option value="lan" label="lan">
-                          lan
-                        </option>
-                        <option value="tr" label="tr">
-                          tr
-                        </option>
-                        <option value="ru" label="ru">
-                          ru
-                        </option>
-                      </select>
                     </Fragment>
                   )}
 
