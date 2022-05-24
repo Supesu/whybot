@@ -2,11 +2,13 @@ import React, { Fragment, FC, ReactElement } from "react";
 
 interface RegionSelectorProps {
   value: string;
+  className: string;
   onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
 }
 
 export const RegionSelector: FC<RegionSelectorProps> = ({
   value,
+  className,
   onChange,
 }: RegionSelectorProps): ReactElement => {
   const regions = [
@@ -28,6 +30,7 @@ export const RegionSelector: FC<RegionSelectorProps> = ({
         name="uniqueType"
         id="uniqueType"
         value={value}
+        className={className}
         onChange={onChange}
         style={{ display: "block" }}
       >

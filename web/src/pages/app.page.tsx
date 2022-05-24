@@ -55,6 +55,8 @@ export const App: FC<AppProps> = ({ apiKey }: AppProps): ReactElement => {
 
   const GENERIC_CLASSES =
     "flex flex-col p-4 rounded cursor-pointer h-20 bg-[#17161c] w-full shadow-md";
+  const FORM_INPUT = "";
+  const FORM_INPUT_LABEL = "text-white";
 
   // synthetic (React) types too confusing for me to properly type this... lol (please make pr if you can)
   const onMouseDown = (e: any) => {
@@ -216,21 +218,33 @@ export const App: FC<AppProps> = ({ apiKey }: AppProps): ReactElement => {
                   className="flex flex-col m-auto w-[40rem] h-[30rem] bg-[#282630] rounded-xl"
                   id="overlay"
                 >
+                  <label htmlFor="type" className={FORM_INPUT_LABEL}>
+                    Type
+                  </label>
                   <TypeSelector
                     value={values.type}
+                    className={FORM_INPUT}
                     onChange={(e) => {
                       console.log("changed");
                       setFieldValue("type", e.target.value);
                     }}
                   />
 
+                  <label htmlFor="triggers" className={FORM_INPUT_LABEL}>
+                    Triggers
+                  </label>
                   <Field
                     name="triggers"
+                    className={FORM_INPUT}
                     autoComplete="off"
                     type="text"
                     placeholder="{PREFIX}test,{PREFIX}t"
                   />
+                  <label htmlFor="Description" className={FORM_INPUT_LABEL}>
+                    Description
+                  </label>
                   <Field
+                    className={FORM_INPUT}
                     name="description"
                     autoComplete="off"
                     type="text"
@@ -239,7 +253,11 @@ export const App: FC<AppProps> = ({ apiKey }: AppProps): ReactElement => {
 
                   {values.type === "base" && (
                     <Fragment>
+                      <label htmlFor="response" className={FORM_INPUT_LABEL}>
+                        Response
+                      </label>
                       <Field
+                        className={FORM_INPUT}
                         name="response"
                         autoComplete="off"
                         type="text"
@@ -250,13 +268,24 @@ export const App: FC<AppProps> = ({ apiKey }: AppProps): ReactElement => {
 
                   {["track", "opgg"].includes(values.type) && (
                     <Fragment>
+                      <label
+                        htmlFor="summonerName"
+                        className={FORM_INPUT_LABEL}
+                      >
+                        Summoner Name
+                      </label>
                       <Field
+                        className={FORM_INPUT}
                         name="summonerName"
                         autoComplete="off"
                         type="text"
                         placeholder="Summoner name"
                       />
+                      <label htmlFor="region" className={FORM_INPUT_LABEL}>
+                        Region
+                      </label>
                       <RegionSelector
+                        className={FORM_INPUT}
                         value={values.region}
                         onChange={(e) =>
                           setFieldValue("region", e.target.value)

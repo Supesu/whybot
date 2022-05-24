@@ -2,11 +2,13 @@ import React, { Fragment, ReactElement, FC } from "react";
 
 interface TypeSelectorProps {
   value: string;
+  className: string;
   onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
 }
 
 export const TypeSelector: FC<TypeSelectorProps> = ({
   value,
+  className,
   onChange,
 }: TypeSelectorProps): ReactElement => {
   return (
@@ -14,6 +16,7 @@ export const TypeSelector: FC<TypeSelectorProps> = ({
       <select
         name="uniqueType"
         id="uniqueType"
+        className={className}
         value={value}
         onChange={onChange}
         style={{ display: "block" }}

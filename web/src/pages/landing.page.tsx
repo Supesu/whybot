@@ -1,7 +1,7 @@
 import { Fragment, useEffect, useState } from "react";
 import axios from "axios";
 import type { ReactElement, FC } from "react";
-import { API_PROTOCOL,API_URL} from "../constants"
+import { API_PROTOCOL, API_URL } from "../constants";
 import { Link } from "react-router-dom";
 import { Command } from "../components";
 

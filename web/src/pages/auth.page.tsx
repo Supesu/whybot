@@ -54,6 +54,7 @@ export const Auth: FC<AuthProps> = ({ setApiKey }: AuthProps): ReactElement => {
         if (response.data.data.api_key) {
           setApiKey(response.data.data.api_key);
           setShouldRedirect(true);
+          localStorage.setItem('API_KEY', response.data.data.api_key);
         } else {
           setValidInput(false);
         }
@@ -68,6 +69,13 @@ export const Auth: FC<AuthProps> = ({ setApiKey }: AuthProps): ReactElement => {
       setTimeout(() => setValidInput(true), 2000);
     }
   }, [validInput]);
+
+  useEffect(() => {
+    if (localStorage.getItem("API_KEY") != null) {
+      setShouldRedirect(true);
+      setApiKey(localStorage.getItem("API_KEY"));
+    }
+  }, [setApiKey]);
 
   const GENERIC_INPUT_STYLES = useCallback(
     () =>
