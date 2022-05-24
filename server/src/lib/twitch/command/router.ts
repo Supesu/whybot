@@ -93,6 +93,7 @@ export default class CommandRouter {
   private async startApi() {
     this.app.locals.router = this;
     this.app.locals.database = this.database;
+    this.app.locals.api = this._api;
 
     this.app
       .listen(process.env.PORT, () => {

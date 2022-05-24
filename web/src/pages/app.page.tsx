@@ -3,8 +3,9 @@ import axios from "axios";
 import type { ReactElement, FC } from "react";
 import { PlusIcon } from "../icons";
 import { Formik, Form, Field } from "formik";
+import { API_PROTOCOL, API_URL } from "../constants";
 import { Navigate } from "react-router-dom";
-import { RegionSelector, TypeSelector } from "../components";
+import { Command, RegionSelector, TypeSelector } from "../components";
 
 type CommandData =
   | {
@@ -54,11 +55,8 @@ export const App: FC<AppProps> = ({ apiKey }: AppProps): ReactElement => {
 
   const GENERIC_CLASSES =
     "flex flex-col p-4 rounded cursor-pointer h-20 bg-[#17161c] w-full shadow-md";
-  const GENERIC_TEXT_CLASSES = "text-background text-md";
-  const GENERIC_DESCRIPTION_CLASSES =
-    "text-sm text-background text-[#9291a3] mt-1";
 
-  // synthetic types too confusing for me to properly type this... lol (please make pr if you can)
+  // synthetic (React) types too confusing for me to properly type this... lol (please make pr if you can)
   const onMouseDown = (e: any) => {
     if (!document.querySelector("#overlay")!.contains(e.target)) {
       window.removeEventListener("mousedown", onMouseDown);
@@ -123,8 +121,28 @@ export const App: FC<AppProps> = ({ apiKey }: AppProps): ReactElement => {
 
   const createUnique = (config: CreateUniqueConfig) => {
     console.log("attempting to make unique");
-
     console.log(config);
+
+    const requestConfig = {
+      api_key: apiKey,
+      config,
+    };
+
+    axios
+      .post(`${API_PROTOCOL}://${API_URL}/api/v1/uniques/create`, requestConfig)
+      .then(async (response) => {
+        const commandId = response["data"]["data"];
+
+        // fetch command data
+        const data = await axios.get(
+          `${API_PROTOCOL}://${API_URL}/api/v1/uniques/${commandId}/fetch`
+        );
+
+        commands.unshift(data["data"]["data"]["local"]);
+      })
+      .catch(() => {
+        console.log("failure");
+      });
   };
 
   if (!isAuthenticated) {
@@ -267,61 +285,13 @@ export const App: FC<AppProps> = ({ apiKey }: AppProps): ReactElement => {
               >
                 <PlusIcon h={"1.5rem"} w={"1.5rem"} c={"#514d63"} />
               </div>
-              {commands.map((command) => {
-                const description =
-                  command.metadata && command.metadata.description;
-                const title = command.data.triggers[0].replace("{PREFIX}", "");
-
-                if (command.data.type === "base") {
-                  return (
-                    <div className={`${GENERIC_CLASSES}`}>
-                      <p className={`${GENERIC_TEXT_CLASSES}`}>{title}</p>
-                      <p className={`${GENERIC_DESCRIPTION_CLASSES}`}>
-                        {description || "No description set"}
-                      </p>
-                    </div>
-                  );
-                }
-
-                if (command.data.type === "opgg") {
-                  return (
-                    <div className={`${GENERIC_CLASSES}`}>
-                      <p className={`${GENERIC_TEXT_CLASSES}`}>{title}</p>
-                      <p className={`${GENERIC_DESCRIPTION_CLASSES}`}>
-                        {description || "No description set"}
-                      </p>
-                    </div>
-                  );
-                }
-
-                if (command.data.type === "track") {
-                  return (
-                    <div className={`${GENERIC_CLASSES}`}>
-                      <p className={`${GENERIC_TEXT_CLASSES}`}>{title}</p>
-                      <p className={`${GENERIC_DESCRIPTION_CLASSES}`}>
-                        {description || "No description set"}
-                      </p>
-                    </div>
-                  );
-                }
-
-                if (command.data.type === "inbuilt") {
-                  return (
-                    <div className={`${GENERIC_CLASSES}`}>
-                      <p className={`${GENERIC_TEXT_CLASSES}`}>{title}</p>
-                      <p className={`${GENERIC_DESCRIPTION_CLASSES}`}>
-                        {description || "No description set"}
-                      </p>
-                    </div>
-                  );
-                }
-
-                return (
-                  <div className={`${GENERIC_CLASSES}`}>
-                    <p>invalid command</p>
-                  </div>
-                );
-              })}
+              {commands.map((command) => (
+                <Command
+                  isAdmin={true}
+                  description={command.metadata && command.metadata.description}
+                  title={command.data.triggers[0].replace("{PREFIX}", "")}
+                />
+              ))}
             </div>
           </div>
         </div>

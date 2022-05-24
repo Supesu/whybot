@@ -9,14 +9,9 @@ import {
 } from "../../../core/ApiResponse";
 import asyncHandler from "../../../helpers/asyncHandler";
 import { buildCustomUnique } from "../../../../../lib/twitch/command/custom";
+import { DahvidClient } from "dahvidclient";
 
 const router = express.Router();
-
-type Type = "base" | "opgg" | "track";
-const sanitizeString = (str: string) => {
-  str = str.replace(/[^a-z0-9áéíóúñü \.,_-][{^}]/gim, "");
-  return str.trim();
-};
 
 router.post(
   "/",
@@ -24,82 +19,94 @@ router.post(
     if (req.body.api_key !== process.env.API_KEY)
       return new ForbiddenResponse("Hmm not allowed bro");
 
+    var config = req.body.config;
+
+    if (!config["metadata"] || !config["metadata"]["description"]) {
+      return new BadRequestResponse(JSON.stringify({ field: "metadata" })).send(
+        res
+      );
+    }
+
+    if (!config["triggers"] || config["triggers"].length <= 0) {
+      return new BadRequestResponse(JSON.stringify({ field: "triggers" })).send(
+        res
+      );
+    }
+
+    if (!["opgg", "track", "base"].includes(config["type"])) {
+      return new BadRequestResponse(JSON.stringify({ field: "type" })).send(
+        res
+      );
+    }
+
+    if (config["type"] == "base" && !config["response"]) {
+      return new BadRequestResponse(JSON.stringify({ field: "response" })).send(
+        res
+      );
+    }
+
+    if (["opgg", "track"].includes(config["type"]) && !config["region"]) {
+      return new BadRequestResponse(JSON.stringify({ field: "region" })).send(
+        res
+      );
+    }
+
+    if (["opgg", "track"].includes(config["type"]) && !config["summonerName"]) {
+      return new BadRequestResponse(
+        JSON.stringify({ field: "summonerName" })
+      ).send(res);
+    }
+
     const router = req.app.locals.router as Router;
+    const api = req.app.locals.api as DahvidClient;
     const db = req.app.locals.database as DatabaseClient;
+    var hasFailed = false;
 
-    if (
-      !Array.isArray(req.body.triggers) ||
-      typeof req.body.response !== "string" ||
-      typeof req.body.type !== "string"
-    )
-      return new BadRequestResponse("500 oops");
+    // run any pre-injection scripts
+    if (["opgg", "track"].includes(config["type"])) {
+      await api.summoner
+        .byName(config["summonerName"], config["region"])
+        .then((data) => {
+          config["summonerId"] = data["id"];
+        })
+        .catch(() => {
+          hasFailed = true;
+          return new BadRequestResponse(
+            JSON.stringify({ field: "summonerName" })
+          ).send(res);
+        });
+      delete config["summonerName"];
+    }
 
-    const createTemplate = (type: Type, data: any) => {
-      if (!["base", "opgg", "track"].includes(type)) return false;
+    // this stops headers being set after request has already been sent
+    if (hasFailed) return;
 
-      if (type == "base") {
-        if (data.response === "" || data.triggers.length === 0) return false;
+    // inject into cloud database
+    const commandId = await db.injectIntoCollectionWithoutId("uniques", config);
 
-        return {
-          data: {
-            response: sanitizeString(data.response),
-            triggers: data.triggers.map((trigger: string) =>
-              sanitizeString(trigger)
-            ),
-            type: sanitizeString(data.type) as Type,
-          },
-          metadata: data.metadata,
-          id: sanitizeString(data.id),
-        };
-      }
-
-      if (type == "opgg" || type == "track") {
-        if (
-          data.summonerId === "" ||
-          data.region === "" ||
-          data.triggers.length === 0
-        )
-          return false;
-
-        return {
-          data: {
-            triggers: data.triggers.map((trigger: string) =>
-              sanitizeString(trigger)
-            ),
-            summonerId: sanitizeString(data.summonerId),
-            region: sanitizeString(data.region),
-            type: sanitizeString(data.type) as Type,
-          },
-
-          metadata: data.metadata,
-          id: sanitizeString(data.id),
-        };
-      }
-
-      return false;
+    // build unique
+    const buildCustomUniqueConfig: Record<string, any> = {
+      data: {
+        type: config["type"],
+        triggers: config["triggers"],
+      },
+      id: commandId,
+      metadata: config["metadata"],
     };
 
-    var template = createTemplate(req.body.type, req.body);
+    if (["opgg", "track"].includes(config["type"])) {
+      buildCustomUniqueConfig["data"]["summonerId"] = config["summonerId"];
+      buildCustomUniqueConfig["data"]["region"] = config["region"];
+    }
 
-    if (!template) return new BadRequestResponse("500 oops");
+    const unique = await buildCustomUnique(buildCustomUniqueConfig as any);
 
-    const cloudTemplate = {
-      metadata: template.metadata,
-      ...template.data,
-    };
-
-    const unique = await buildCustomUnique(template);
-    db.injectIntoCollectionWithId(
-      "uniques",
-      sanitizeString(req.body.id),
-      cloudTemplate
-    );
+    // inject into live client
     router.injectUnique(unique);
 
-    return new SuccessResponse(
-      `Created unique: ${sanitizeString(req.body.id)}`,
-      "created"
-    ).send(res);
+    return new SuccessResponse(`Created unique: ${commandId}`, commandId).send(
+      res
+    );
   })
 );
 

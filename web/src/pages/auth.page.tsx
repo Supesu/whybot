@@ -1,6 +1,7 @@
 import { Fragment, useCallback, useEffect, useState } from "react";
 import { Formik, Field, Form } from "formik";
 import type { ReactElement, FC } from "react";
+import { API_PROTOCOL, API_URL } from "../constants";
 import { Link, Navigate } from "react-router-dom";
 import axios from "axios";
 
@@ -44,12 +45,8 @@ export const Auth: FC<AuthProps> = ({ setApiKey }: AuthProps): ReactElement => {
       openInNewTab(url);
 
   const authenticate = (email: string, password: string) => {
-    const __prod__ = true;
-    const url = __prod__ ? "whybotapi.supesu.dev" : "localhost:4040";
-    const protocol = __prod__ ? "https" : "http";
-
     axios
-      .post(`${protocol}://${url}/api/v1/auth`, {
+      .post(`${API_PROTOCOL}://${API_URL}/api/v1/auth`, {
         email,
         password,
       })

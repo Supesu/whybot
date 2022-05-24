@@ -9,6 +9,7 @@ import {
   getDoc,
   writeBatch,
   WriteBatch,
+  addDoc,
 } from "firebase/firestore";
 import { getAuth, signInAnonymously } from "firebase/auth";
 import type { FirebaseOptions, FirebaseApp } from "firebase/app";
@@ -70,6 +71,15 @@ export class DatabaseClient {
     const docRef = doc(this.db, collectionName, id);
     await setDoc(docRef, data);
     return true;
+  }
+
+  public async injectIntoCollectionWithoutId(
+    collectionName: string,
+    data: any
+  ): Promise<string> {
+    const collectionRef = collection(this.db, collectionName);
+    const docRef = await addDoc(collectionRef, data);
+    return docRef.id;
   }
 
   public getDb() {

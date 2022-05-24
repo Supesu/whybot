@@ -1,7 +1,9 @@
 import { Fragment, useEffect, useState } from "react";
 import axios from "axios";
 import type { ReactElement, FC } from "react";
+import { API_PROTOCOL,API_URL} from "../constants"
 import { Link } from "react-router-dom";
+import { Command } from "../components";
 
 type CommandData =
   | {
@@ -42,12 +44,8 @@ export const Landing: FC = (): ReactElement => {
   const [commands, setCommands] = useState<LocalCommand[]>([]);
 
   useEffect(() => {
-    const __prod__ = true;
-    const url = __prod__ ? "whybotapi.supesu.dev" : "192.168.50.112:4040";
-    const protocol = __prod__ ? "https" : "http";
-
     axios
-      .get(protocol + "://" + url + "/api/v1/uniques/fetch?local=true")
+      .get(`${API_PROTOCOL}://${API_URL}/api/v1/uniques/fetch`)
       .then((data) => data.data.data)
       .then((data) => {
         setCommands(data.local);
@@ -74,72 +72,12 @@ export const Landing: FC = (): ReactElement => {
         <div className="flex justify-center mx-auto">
           <div className="my-14 flex flex-col w-[62rem]">
             <div className="flex flex-col space-y-4">
-              {commands.map((command) => {
-                const GENERIC_CLASSES =
-                  "flex flex-col p-4 rounded h-20 bg-[#17161c] w-full shadow-md";
-                const GENERIC_TEXT_CLASSES = "text-background text-md";
-                const GENERIC_DESCRIPTION_CLASSES =
-                  "text-sm text-background text-[#9291a3] mt-1";
-                const title =
-                  command.data &&
-                  command.data.triggers &&
-                  command.data.triggers[0].replace("{PREFIX}", "");
-                const description =
-                  command.metadata && command.metadata.description;
-
-                if (command.data && command.data.type && command.data.type === "base") {
-                  return (
-                    <div className={`${GENERIC_CLASSES}`}>
-                      <p className={`${GENERIC_TEXT_CLASSES}`}>{title}</p>
-                      <p className={`${GENERIC_DESCRIPTION_CLASSES}`}>
-                        {description || "No description set"}
-                      </p>
-                    </div>
-                  );
-                }
-
-                if (command.data && command.data.type && command.data.type === "opgg") {
-                  return (
-                    <div className={`${GENERIC_CLASSES}`}>
-                      <p className={`${GENERIC_TEXT_CLASSES}`}>{title}</p>
-                      <p className={`${GENERIC_DESCRIPTION_CLASSES}`}>
-                        {description || "No description set"}
-                      </p>
-                    </div>
-                  );
-                }
-
-                if (command.data && command.data.type && command.data.type === "track") {
-                  return (
-                    <div className={`${GENERIC_CLASSES}`}>
-                      <p className={`${GENERIC_TEXT_CLASSES}`}>{title}</p>
-                      <p className={`${GENERIC_DESCRIPTION_CLASSES}`}>
-                        {description || "No description set"}
-                      </p>
-                    </div>
-                  );
-                }
-
-                if (command.data && command.data.type && command.data.type === "inbuilt") {
-                  return (
-                    <div className={`${GENERIC_CLASSES}`}>
-                      <p className={`${GENERIC_TEXT_CLASSES}`}>{title}</p>
-                      <p className={`${GENERIC_DESCRIPTION_CLASSES}`}>
-                        {description || "No description set"}
-                      </p>
-                    </div>
-                  );
-                }
-
-                return (
-                  <div className={`${GENERIC_CLASSES}`}>
-                  <p className={`${GENERIC_TEXT_CLASSES}`}>Meow</p>
-                  <p className={`${GENERIC_DESCRIPTION_CLASSES}`}>
-                    {description || "Contact me on discord supesu#7777"}
-                  </p>
-                </div>
-                );
-              })}
+              {commands.map((command) => (
+                <Command
+                  description={command.metadata && command.metadata.description}
+                  title={command.data.triggers[0].replace("{PREFIX}", "")}
+                />
+              ))}
             </div>
           </div>
         </div>

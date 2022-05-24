@@ -12,7 +12,7 @@ void (async () => {
   //? initalize config
   const config = Config.createConfigFromEnv(process.env, [
     "supesuOCE",
-    "whynotbefriends",
+    // "whynotbefriends",
   ]);
 
   //? initalize database
