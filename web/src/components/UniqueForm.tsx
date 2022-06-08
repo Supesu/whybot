@@ -1,5 +1,5 @@
 import { Form, Formik } from "formik";
-import React, { Fragment, FC, ReactElement, useState } from "react";
+import React, { Fragment, FC, ReactElement } from "react";
 
 import { UniqueSelectField, UniqueTextField } from "./UniqueField";
 
