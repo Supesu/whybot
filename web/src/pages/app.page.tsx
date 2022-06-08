@@ -1,11 +1,12 @@
-import { Fragment, useEffect, useState } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 import axios from "axios";
 import type { ReactElement, FC } from "react";
 import { PlusIcon } from "../icons";
-import { Formik, Form, Field } from "formik";
 import { API_PROTOCOL, API_URL } from "../constants";
 import { Navigate } from "react-router-dom";
-import { Command, RegionSelector, TypeSelector } from "../components";
+import { Command, UniqueForm } from "../components";
+import type { UniqueFormConfig } from "../components";
+import { UniqueFormResponse } from "../components/UniqueForm";
 
 type CommandData =
   | {
@@ -51,37 +52,153 @@ export const App: FC<AppProps> = ({ apiKey }: AppProps): ReactElement => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(
     apiKey !== "" && apiKey !== null
   );
+  const [uniqueFormUpdateInformation, setUniqueFormUpdateInformation] =
+    useState<any>({});
+  const [
+    uniqueFormFieldUpdateInformation,
+    setUniqueFormFieldUpdateInformation,
+  ] = useState<any>({});
+  const [shouldShowUpdateForm, setShouldShowUpdateForm] =
+    useState<boolean>(false);
   const [overlayIsActive, setOverlayIsActive] = useState<boolean>(false);
+  const [currentStateChange, setCurrentStateChange] = useState<any>("CREATE");
+  const [currentWorkingCommand, setCurrentWorkingCommand] = useState<string>();
+
+  const StateChangeMap: Record<string, any> = {
+    CREATE: setOverlayIsActive,
+    UPDATE: setShouldShowUpdateForm,
+  };
+
+  var FormConfig: UniqueFormConfig = {
+    fields: [
+      {
+        id: "type",
+        label: "Type",
+        type: "select",
+        placeholder: "base",
+        options: ["base", "opgg", "track"],
+        display: (_type) => true,
+      },
+      {
+        id: "triggers",
+        label: "Triggers",
+        placeholder: "{PREFIX}test, {PREFIX}t",
+        type: "string",
+        display: (_type) => true,
+      },
+      {
+        id: "description",
+        label: "Description",
+        placeholder: "Description",
+        type: "string",
+        display: (_type) => true,
+      },
+      {
+        id: "response",
+        label: "Response",
+        placeholder: "Response",
+        type: "string",
+        display: (type) => ["base", "inbuilt"].includes(type),
+      },
+      {
+        id: "summonerName",
+        label: "Summoner Name",
+        placeholder: "possum2002",
+        type: "string",
+        display: (type) => ["opgg", "track"].includes(type),
+      },
+      {
+        id: "region",
+        label: "Region",
+        type: "select",
+        options: [
+          "oce",
+          "na",
+          "eune",
+          "euw",
+          "kr",
+          "jp",
+          "las",
+          "lan",
+          "tr",
+          "ru",
+        ],
+        placeholder: "oce",
+        display: (type) => ["opgg", "track"].includes(type),
+      },
+    ],
+    onSelectChange: (values: UniqueFormResponse) => {},
+    onSubmit: (values: UniqueFormResponse) => {
+      type ValidType = "base" | "opgg" | "track";
+
+      const triggers = values.triggers.split(",");
+      const filtered_triggers = triggers.filter(
+        (trigger) => trigger && trigger.includes("{PREFIX}")
+      );
+
+      const generic_config: Record<any, any> = {
+        metadata: {
+          description: values.description,
+        },
+        triggers: filtered_triggers,
+        type: values.type as ValidType,
+      };
+
+      switch (values.type) {
+        case "base":
+          generic_config["response"] = values.response;
+          break;
+        case "opgg":
+        case "track":
+          generic_config["summonerName"] = values.summonerName;
+          generic_config["region"] = values.region;
+          break;
+      }
+
+      console.log(generic_config);
+      const stateChange = StateChangeMap[currentStateChange];
+
+      stateChange(false);
+      window.removeEventListener("mousedown", onMouseDown);
+      createUnique(generic_config as CreateUniqueConfig);
+    },
+  };
 
   const GENERIC_CLASSES =
     "flex flex-col p-4 rounded cursor-pointer h-20 bg-[#17161c] w-full shadow-md";
-  const FORM_INPUT = "";
-  const FORM_INPUT_LABEL = "text-white";
 
-  // synthetic (React) types too confusing for me to properly type this... lol (please make pr if you can)
-  const onMouseDown = (e: any) => {
-    if (!document.querySelector("#overlay")!.contains(e.target)) {
+  const onMouseDown = (e: MouseEvent) => {
+    const target: Node = e.target as Node;
+
+    if (!document.querySelector("#overlay")!.contains(target)) {
       window.removeEventListener("mousedown", onMouseDown);
 
-      setOverlayIsActive(false);
+      const stateChange = StateChangeMap[currentStateChange];
+
+      stateChange(false);
     }
   };
 
-  const toggleOverlay = () => {
-    setOverlayIsActive((s) => !s);
-
+  useEffect(() => {
     window.addEventListener("mousedown", onMouseDown);
+
+    return () => {
+      window.removeEventListener("mousedown", onMouseDown);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentStateChange]);
+
+  const toggleOverlay = (name: any) => {
+    setCurrentStateChange(name);
+    const stateChange = StateChangeMap[name]!;
+    stateChange((s: any) => !s);
   };
 
   useEffect(() => {
     if (!isAuthenticated) return;
 
-    const __prod__ = true;
-    const url = __prod__ ? "whybotapi.supesu.dev" : "localhost:4040";
-    const protocol = __prod__ ? "https" : "http";
-
     axios
-      .get(protocol + "://" + url + "/api/v1/uniques/fetch")
+      .get(API_PROTOCOL + "://" + API_URL + "/api/v1/uniques/fetch")
       .then((data) => data.data.data)
       .then((data) => {
         setCommands(data.local);
@@ -136,14 +253,62 @@ export const App: FC<AppProps> = ({ apiKey }: AppProps): ReactElement => {
         const commandId = response["data"]["data"];
 
         // fetch command data
-        const data = await axios.get(
-          `${API_PROTOCOL}://${API_URL}/api/v1/uniques/${commandId}/fetch`
-        );
-
-        commands.unshift(data["data"]["data"]["local"]);
+        await axios
+          .get(`${API_PROTOCOL}://${API_URL}/api/v1/uniques/${commandId}/fetch`)
+          .then((response) => {
+            commands.unshift(response["data"]["data"]["local"]);
+          });
       })
-      .catch(() => {
-        console.log("failure");
+      .catch((error) => {
+        const errors = JSON.parse(error.response.data.message);
+
+        errors.forEach((error: { field: string; message: string }) => {
+          console.log(error);
+        });
+      });
+  };
+  const updateUnique = (values: UniqueFormResponse & { id: string }) => {
+    const commandId = values.id;
+
+    type ValidType = "base" | "opgg" | "track";
+
+    const triggers = values.triggers.split(",");
+    const filtered_triggers = triggers.filter(
+      (trigger) => trigger && trigger.includes("{PREFIX}")
+    );
+
+    const generic_config: Record<any, any> = {
+      metadata: {
+        description: values.description,
+      },
+      triggers: filtered_triggers,
+      type: values.type as ValidType,
+    };
+
+    switch (values.type) {
+      case "base":
+        generic_config["response"] = values.response;
+        break;
+      case "opgg":
+      case "track":
+        generic_config["summonerName"] = values.summonerName;
+        generic_config["region"] = values.region;
+        break;
+    }
+
+    const requestConfig = {
+      api_key: apiKey,
+      config: generic_config,
+    };
+
+    axios
+      .post(
+        `${API_PROTOCOL}://${API_URL}/api/v1/uniques/${commandId}/update`,
+        requestConfig
+      )
+      .then((data) => data.data)
+      .then((data) => {
+        console.log(data);
       });
   };
 
@@ -153,6 +318,7 @@ export const App: FC<AppProps> = ({ apiKey }: AppProps): ReactElement => {
 
   const handleLogout = () => {
     setIsAuthenticated(false);
+    window.localStorage.clear();
   };
 
   return (
@@ -173,151 +339,77 @@ export const App: FC<AppProps> = ({ apiKey }: AppProps): ReactElement => {
       </div>
       <div className="bg-[#1D1B22] h-auto min-h-full w-full flex">
         {overlayIsActive && (
-          <div className="fixed top-0 left-0 right-0 bottom-0 justify-center flex">
-            <Formik
-              initialValues={{
-                type: "base",
-                description: "",
-                triggers: "",
-                region: "oce",
-                response: "",
-                summonerName: "",
-              }}
-              onSubmit={async (values) => {
-                type ValidType = "base" | "opgg" | "track";
-
-                const triggers = values.triggers.split(",");
-                const filtered_triggers = triggers.filter(
-                  (trigger) => trigger && trigger.includes("{PREFIX}")
-                );
-
-                const generic_config: Record<any, any> = {
-                  metadata: {
-                    description: values.description,
-                  },
-                  triggers: filtered_triggers,
-                  type: values.type as ValidType,
-                };
-
-                switch (values.type) {
-                  case "base":
-                    generic_config["response"] = values.response;
-                    break;
-                  case "opgg":
-                  case "track":
-                    generic_config["summonerName"] = values.summonerName;
-                    generic_config["region"] = values.region;
-                    break;
-                }
-
-                createUnique(generic_config as CreateUniqueConfig);
-              }}
-            >
-              {({ values, setFieldValue }) => (
-                <Form
-                  className="flex flex-col m-auto w-[40rem] h-[30rem] bg-[#282630] rounded-xl"
-                  id="overlay"
-                >
-                  <label htmlFor="type" className={FORM_INPUT_LABEL}>
-                    Type
-                  </label>
-                  <TypeSelector
-                    value={values.type}
-                    className={FORM_INPUT}
-                    onChange={(e) => {
-                      console.log("changed");
-                      setFieldValue("type", e.target.value);
-                    }}
-                  />
-
-                  <label htmlFor="triggers" className={FORM_INPUT_LABEL}>
-                    Triggers
-                  </label>
-                  <Field
-                    name="triggers"
-                    className={FORM_INPUT}
-                    autoComplete="off"
-                    type="text"
-                    placeholder="{PREFIX}test,{PREFIX}t"
-                  />
-                  <label htmlFor="Description" className={FORM_INPUT_LABEL}>
-                    Description
-                  </label>
-                  <Field
-                    className={FORM_INPUT}
-                    name="description"
-                    autoComplete="off"
-                    type="text"
-                    placeholder="Description"
-                  />
-
-                  {values.type === "base" && (
-                    <Fragment>
-                      <label htmlFor="response" className={FORM_INPUT_LABEL}>
-                        Response
-                      </label>
-                      <Field
-                        className={FORM_INPUT}
-                        name="response"
-                        autoComplete="off"
-                        type="text"
-                        placeholder="Response"
-                      />
-                    </Fragment>
-                  )}
-
-                  {["track", "opgg"].includes(values.type) && (
-                    <Fragment>
-                      <label
-                        htmlFor="summonerName"
-                        className={FORM_INPUT_LABEL}
-                      >
-                        Summoner Name
-                      </label>
-                      <Field
-                        className={FORM_INPUT}
-                        name="summonerName"
-                        autoComplete="off"
-                        type="text"
-                        placeholder="Summoner name"
-                      />
-                      <label htmlFor="region" className={FORM_INPUT_LABEL}>
-                        Region
-                      </label>
-                      <RegionSelector
-                        className={FORM_INPUT}
-                        value={values.region}
-                        onChange={(e) =>
-                          setFieldValue("region", e.target.value)
-                        }
-                      />
-                    </Fragment>
-                  )}
-
-                  <button
-                    type="submit"
-                    className="mx-auto mt-auto mb-8 w-[35rem] text-white bg-[#8A899F] rounded-md h-12 text-sm font-medium text-center"
-                  >
-                    CREATE UNIQUE
-                  </button>
-                </Form>
-              )}
-            </Formik>
-          </div>
+          <UniqueForm
+            onSelectChange={FormConfig.onSelectChange}
+            fields={FormConfig.fields}
+            onSubmit={FormConfig.onSubmit}
+          />
         )}
+        {shouldShowUpdateForm && (
+          <UniqueForm
+            onSelectChange={FormConfig.onSelectChange}
+            fields={uniqueFormFieldUpdateInformation}
+            initialValues={uniqueFormUpdateInformation}
+            onSubmit={(data) => {
+              const _template = { id: currentWorkingCommand!, ...data };
+              updateUnique(_template);
+            }}
+          />
+        )}
+
         <div className="flex justify-center mx-auto">
           <div className="my-14 flex flex-col w-[62rem]">
             <div className="flex flex-col space-y-4">
               <div
                 className={`${GENERIC_CLASSES} bg-[#2c2a35]`}
-                onClick={() => toggleOverlay()}
+                onClick={() => toggleOverlay("CREATE")}
               >
                 <PlusIcon h={"1.5rem"} w={"1.5rem"} c={"#514d63"} />
               </div>
-              {commands.map((command) => (
+              {commands.map((command, index) => (
                 <Command
                   isAdmin={true}
+                  adminTools={{
+                    handleDelete: (id: string) => {
+                      axios.get(
+                        `${API_PROTOCOL}://${API_URL}/api/v1/uniques/${id}/delete?api_key=${apiKey}`
+                      );
+                    },
+                    handleEdit: (id: string) => {
+                      console.log("attempting to edit unique:" + id);
+
+                      axios
+                        .get(
+                          `${API_PROTOCOL}://${API_URL}/api/v1/uniques/${id}/fetch`
+                        )
+                        .then((data) => data.data.data.local)
+                        .then((data) => {
+                          var _template: Record<string, string> = {
+                            type: data.data.type,
+                            description: data.metadata.description,
+                            triggers: data.data.triggers.join(","),
+                          };
+
+                          if (["base", "inbuilt"].includes(_template.type)) {
+                            _template["response"] = data.data.response;
+                          }
+                          if (["opgg", "track"].includes(_template.type)) {
+                            _template["region"] = data.data.region;
+                            _template["summonerName"] = data.data.summonerName;
+                          }
+                          const fields = FormConfig.fields;
+                          fields[0].placeholder = data.data.type;
+                          fields[5].placeholder = _template["region"];
+
+                          setCurrentWorkingCommand(id);
+                          setUniqueFormUpdateInformation(_template);
+                          setUniqueFormFieldUpdateInformation(fields);
+                          toggleOverlay("UPDATE");
+                        });
+                    },
+                  }}
                   description={command.metadata && command.metadata.description}
+                  id={command.id}
                   title={command.data.triggers[0].replace("{PREFIX}", "")}
                 />
               ))}

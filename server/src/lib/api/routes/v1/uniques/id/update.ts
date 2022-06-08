@@ -9,22 +9,21 @@ import {
 } from "../../../../core/ApiResponse";
 import asyncHandler from "../../../../helpers/asyncHandler";
 import { buildCustomUnique } from "../../../../../../lib/twitch/command/custom";
+import { DahvidClient } from "dahvidclient";
+import { Logger } from "../../../../../../utils";
+import type { Unique } from "../../../../../twitch/command/contract";
 
 const router = express.Router();
-
-const sanitizeString = (str: string) => {
-  str = str.replace(/[^a-z0-9áéíóúñü \.,_-][{^}]/gim, "");
-  return str.trim();
-};
 
 router.post(
   "/",
   asyncHandler(async (req, res) => {
     if (req.body.api_key !== process.env.API_KEY)
-      return new ForbiddenResponse("Hmm not allowed bro");
+      return new ForbiddenResponse("Hmm not allowed bro").send(res);
 
     const router = req.app.locals.router as Router;
     const database = req.app.locals.database as DatabaseClient;
+    const api = req.app.locals.api as DahvidClient;
     const id = req.app.locals.id;
 
     const uniques = await router.fetchUniques();
@@ -35,32 +34,57 @@ router.post(
       .find((u) => u.id === id);
     const fetched_cloud_unique = cloud_uniques.find((u) => u.id === id);
 
-    if (!fetched_cloud_unique) return new BadRequestResponse("oops lol!");
+    if (!fetched_cloud_unique)
+      return new BadRequestResponse("oops lol!").send(res);
 
-    const { region, triggers, type, summonerId, response } = req.body.data;
-    const toChange: any = {};
-    if (region && type !== "") toChange["region"] = sanitizeString(region);
-    if (triggers && Array.isArray(triggers) && triggers.length !== 0)
-      toChange["triggers"] = triggers.map((trigger) => sanitizeString(trigger));
-    if (type && type !== "" && ["base", "opgg", "tracl"].includes(type))
-      toChange["type"] = sanitizeString(type);
-    if (summonerId && summonerId !== "")
-      toChange["summonerId"] = sanitizeString(summonerId);
-    if (response && response !== "")
-      toChange["response"] = sanitizeString(response);
+    const config = req.body.config;
+    var valid = true;
+    var newConfig: Record<string, any> = { data: {} };
+
+    if (!config.metadata.description) valid = false;
+    if (config.triggers.length === 0) valid = false;
+    if (!["base", "opgg", "track"].includes(config.type)) valid = false;
+    if (config.type === "base" && (config.response === "" || !config.response))
+      valid = false;
+    if (
+      ["opgg", "track"].includes(config.type) &&
+      (config.summonerName == "" || !config.region)
+    )
+      valid = false;
+
+    if (!valid) return new BadRequestResponse("oop").send(res);
+
+    newConfig["data"]["triggers"] = config.triggers;
+    newConfig["metadata"] = config.metadata;
+
+    if (["opgg", "track"].includes(config.type)) {
+      const summonerId = (
+        await api.summoner.byName(config.summonerName, config.region)
+      ).id;
+
+      newConfig["data"]["region"] = config.region;
+      newConfig["data"]["summonerId"] = summonerId;
+    }
+
+    if (config.type === "base") {
+      newConfig["data"]["response"] = config.response;
+    }
 
     const newTemplate: any = {
       ...fetched_local_unique,
-      data: { ...fetched_local_unique!.data, ...toChange },
+      ...newConfig,
+      data: { ...fetched_local_unique.data, ...newConfig.data },
     };
 
-    const unique = await buildCustomUnique(newTemplate);
+    const unique: Unique = await buildCustomUnique(newTemplate);
     router.replaceUnique(id, unique);
-    database.injectIntoCollectionWithId(
-      "uniques",
-      sanitizeString(id),
-      newTemplate
-    );
+    const cloudTemplate: any = {
+      id: newTemplate.id,
+      ...newTemplate.data,
+      metadata: newTemplate.metadata,
+    };
+    database.injectIntoCollectionWithId("uniques", id, cloudTemplate);
+    Logger.debug("Executed update request for Unique: " + id);
 
     const _response = {
       old: {

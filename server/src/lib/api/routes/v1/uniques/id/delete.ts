@@ -5,7 +5,7 @@ import { Router } from "../../../../../../lib/twitch";
 import {
   BadRequestResponse,
   SuccessResponse,
-  ForbiddenResponse
+  ForbiddenResponse,
 } from "../../../../core/ApiResponse";
 import asyncHandler from "../../../../helpers/asyncHandler";
 
@@ -14,8 +14,8 @@ const router = express.Router();
 router.get(
   "/",
   asyncHandler(async (req, res) => {
-    if (req.body.api_key !== process.env.API_KEY)
-      return new ForbiddenResponse("Hmm not allowed bro");
+    if (req.query.api_key !== process.env.API_KEY)
+      return new ForbiddenResponse("Hmm not allowed bro").send(res);
 
     const router = req.app.locals.router as Router;
     const database = req.app.locals.database as DatabaseClient;
@@ -26,7 +26,7 @@ router.get(
     const fetched_local_unique = uniques.find((u) => u.id === id);
 
     if (!fetched_local_unique)
-      return new BadRequestResponse("chill combo probably");
+      return new BadRequestResponse("chill combo probably").send(res);
 
     router.unloadUnique(id);
     database.deleteFromColletionWithId("uniques", id);

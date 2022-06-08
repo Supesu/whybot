@@ -13,6 +13,59 @@ import { DahvidClient } from "dahvidclient";
 
 const router = express.Router();
 
+interface InputError {
+  message: string;
+  field: string;
+}
+
+const validateRequest = (config: any): InputError[] => {
+  var _errors: InputError[] = [];
+
+  if (!config["metadata"] || !config["metadata"]["description"]) {
+    _errors.push({
+      field: "description",
+      message: "",
+    });
+  }
+
+  if (!config["triggers"] || config["triggers"].length <= 0) {
+    _errors.push({
+      field: "triggers",
+      message: "",
+    });
+  }
+
+  if (!["opgg", "track", "base"].includes(config["type"])) {
+    _errors.push({
+      field: "type",
+      message: "",
+    });
+  }
+
+  if (config["type"] == "base" && !config["response"]) {
+    _errors.push({
+      field: "response",
+      message: "",
+    });
+  }
+
+  if (["opgg", "track"].includes(config["type"]) && !config["region"]) {
+    _errors.push({
+      field: "region",
+      message: "",
+    });
+  }
+
+  if (["opgg", "track"].includes(config["type"]) && !config["summonerName"]) {
+    _errors.push({
+      field: "summonerName",
+      message: "",
+    });
+  }
+
+  return _errors;
+};
+
 router.post(
   "/",
   asyncHandler(async (req, res) => {
@@ -21,40 +74,10 @@ router.post(
 
     var config = req.body.config;
 
-    if (!config["metadata"] || !config["metadata"]["description"]) {
-      return new BadRequestResponse(JSON.stringify({ field: "metadata" })).send(
-        res
-      );
-    }
+    const errors = validateRequest(config);
 
-    if (!config["triggers"] || config["triggers"].length <= 0) {
-      return new BadRequestResponse(JSON.stringify({ field: "triggers" })).send(
-        res
-      );
-    }
-
-    if (!["opgg", "track", "base"].includes(config["type"])) {
-      return new BadRequestResponse(JSON.stringify({ field: "type" })).send(
-        res
-      );
-    }
-
-    if (config["type"] == "base" && !config["response"]) {
-      return new BadRequestResponse(JSON.stringify({ field: "response" })).send(
-        res
-      );
-    }
-
-    if (["opgg", "track"].includes(config["type"]) && !config["region"]) {
-      return new BadRequestResponse(JSON.stringify({ field: "region" })).send(
-        res
-      );
-    }
-
-    if (["opgg", "track"].includes(config["type"]) && !config["summonerName"]) {
-      return new BadRequestResponse(
-        JSON.stringify({ field: "summonerName" })
-      ).send(res);
+    if (errors.length > 0) {
+      return new BadRequestResponse(JSON.stringify(errors)).send(res);
     }
 
     const router = req.app.locals.router as Router;
@@ -98,6 +121,9 @@ router.post(
       buildCustomUniqueConfig["data"]["summonerId"] = config["summonerId"];
       buildCustomUniqueConfig["data"]["region"] = config["region"];
     }
+
+    if (config["type"] == "base")
+      buildCustomUniqueConfig["data"]["response"] = config["response"];
 
     const unique = await buildCustomUnique(buildCustomUniqueConfig as any);
 
