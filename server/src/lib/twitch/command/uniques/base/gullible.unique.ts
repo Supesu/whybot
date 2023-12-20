@@ -2,7 +2,7 @@ import { BaseUnique, Status, UniqueData } from "../../contract";
 import { compileTriggers, Logger } from "../../../../../utils";
 
 export default class GullibleUnique extends BaseUnique {
-  static UNIQUE_TRIGGERS = ["{PREFIX}gullible"];
+  static UNIQUE_TRIGGERS = ["{PREFIX}enter", "{PREFIX}giveaway", "{PREFIX}irs", "{PREFIX}charity"];
 
   public static getConfig() {
     return {
@@ -15,7 +15,7 @@ export default class GullibleUnique extends BaseUnique {
       metadata: {
         description: "I mean it does something tbf",
       },
-      id: "FMQuEcMgAZ0qLJYi9uDn",
+      id: "FMQuEcMgAZ0qLJYssi9uDn",
     };
   }
   public static test(message: string): boolean {
