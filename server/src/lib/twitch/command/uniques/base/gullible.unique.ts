@@ -28,6 +28,7 @@ export default class GullibleUnique extends BaseUnique {
 
   public async run({
     userstate,
+    channel,
     store,
   }: UniqueData): Promise<Status.IGNORE | Status.ERR | Status.OK> {
     Logger.debug("Attempting to trigger Gullible unique");
@@ -38,10 +39,14 @@ export default class GullibleUnique extends BaseUnique {
       users = store.read("users");
     }
 
+    
     if (!users.includes(userstate["display-name"]!)) {
       store.write("users", [...users, userstate["display-name"]]);
 
+      this.client.say(channel, "added 1 entry to " + userstate["display-name"])
       store.persist();
+    } else {
+      this.client.say(channel, "you're already entered")
     }
 
     Logger.debug("Gullible unique has been triggered");
