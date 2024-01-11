@@ -11,7 +11,7 @@
     "watch": "concurrently -k -p \"{name}\" -n \",\" -c \"cyan.bold, green.bold\" \"npm run watch:ts\" \"npm run watch:serve\"",
     "watch:ts": "tsc -w",
     "watch:serve": "nodemon -r dotenv-safe/config build/index.js",
-    "start": "node build/index.js"
+    "start": "node -r dotenv-safe/config build/index.js"
   },
   "author": "",
   "license": "ISC",
