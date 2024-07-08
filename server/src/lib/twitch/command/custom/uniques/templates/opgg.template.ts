@@ -11,7 +11,7 @@ import type { Region } from "dahvidclient";
 export const buildOpggUnique: Unique = (
   id: string,
   triggers: string[],
-  summonerId: string,
+  puuid: string,
   region: Region,
   metadata: UniqueMetaData
 ) => {
@@ -21,7 +21,7 @@ export const buildOpggUnique: Unique = (
     public static getConfig() {
       return {
         data: {
-          summonerId,
+          puuid,
           triggers,
           region,
           type: "opgg",
@@ -39,19 +39,18 @@ export const buildOpggUnique: Unique = (
       );
     }
 
-    public async run({
-      channel,
-      api,
-    }: UniqueData): Promise<Status> {
-      const id = triggers[0].replace("{PREFIX}", "");
-      Logger.debug(`Attempting to trigger ${id} unique`);
+    public async run({ channel, api }: UniqueData): Promise<Status> {
+      const trigger = triggers[0].replace("{PREFIX}", "");
+      Logger.debug(`Attempting to trigger ${trigger} unique`);
 
-      const summoner = await api.summoner.bySummonerId(summonerId, region);
-      const name = encodeURI(summoner.name.trim());
+      const account = await api.account.byPuuid(puuid, "asia");
 
-      this.client.say(channel, `https://op.gg/summoners/${region}/${name}`);
+      this.client.say(
+        channel,
+        `https://op.gg/summoners/${region}/${account.gameName}-${account.tagLine}`
+      );
 
-      Logger.debug(`${id} unique has been triggered`);
+      Logger.debug(`${trigger} unique has been triggered`);
       return Promise.resolve(Status.OK);
     }
   };

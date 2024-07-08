@@ -29,7 +29,7 @@ export const buildCustomUniques = async (
         buildOpggUnique(
           unique.id,
           unique.data.triggers,
-          unique.data.summonerId,
+          unique.data.puuid,
           unique.data.region,
           unique.data.metadata
         )

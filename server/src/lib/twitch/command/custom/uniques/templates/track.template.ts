@@ -46,7 +46,9 @@ export const buildTrackUnique: Unique = (
       const id = triggers[0].replace("{PREFIX}", "");
       Logger.debug(`Attempting to trigger ${id} unique`);
 
-      const summoner = await api.league
+      const summoner = await api.summoner.bySummonerId(summonerId, region);
+      const account = await api.account.byPuuid(summoner.puuid, "asia")
+      const entries = await api.league
         .bySummonerId(summonerId, region)
         .then((queues) =>
           queues.find((entries) => entries.queueType === "RANKED_SOLO_5x5")
@@ -54,10 +56,10 @@ export const buildTrackUnique: Unique = (
 
       this.client.say(
         channel,
-        `User: ${summoner!.summonerName} | Rank: ${formatRank(
-          summoner!.tier,
-          summoner!.rank
-        )} | LP: ${summoner!.leaguePoints}`
+        `User: ${account!.gameName}#${account!.tagLine} | Rank: ${formatRank(
+          entries!.tier,
+          entries!.rank
+        )} | LP: ${entries!.leaguePoints}`
       );
 
       Logger.debug(`${id} unique has been triggered`);
