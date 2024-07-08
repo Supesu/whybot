@@ -1,4 +1,4 @@
-import { ChannelT, UserStateT, MessageT, SelfT } from "../../command/contract";
+import type { ChannelT, UserStateT, MessageT, SelfT } from "../../command/contract";
 
 export interface OnMessageHandler {
   (
@@ -16,7 +16,7 @@ export interface ClientInterface {
   startListeners(): void;
   timeout(channel: string, username: string, length: number, reason: string): Promise<[string, string, number, string]>;
   ban(
-    channel: string,
+    channel: string ,
     username: string,
     reason: string
   ): Promise<[string, string, string]>;

@@ -5,13 +5,8 @@
   "main": "index.js",
   "scripts": {
     "gen-env": "gen-env-types .env -o src/env.d.ts -e .",
-    "clean": "rimraf -rf build && rimraf ./src/env.d.ts",
-    "build:ts": "tsc",
-    "build": "npm run build:ts",
-    "watch": "concurrently -k -p \"{name}\" -n \",\" -c \"cyan.bold, green.bold\" \"npm run watch:ts\" \"npm run watch:serve\"",
-    "watch:ts": "tsc -w",
-    "watch:serve": "nodemon -r dotenv-safe/config build/index.js",
-    "start": "node -r dotenv-safe/config build/index.js"
+    "watch": "bun run src/index.ts --watch",
+    "start": "bun run src/index.ts"
   },
   "author": "",
   "license": "ISC",
@@ -24,7 +19,6 @@
     "concurrently": "^7.0.0",
     "dotenv-safe": "^8.2.0",
     "gen-env-types": "^1.3.2",
-    "nodemon": "^2.0.15",
     "rimraf": "^3.0.2",
     "typescript": "^4.5.5"
   },

@@ -1,6 +1,6 @@
 import moment from "moment";
 import { Logger } from "../../../utils";
-import { ClientInterface } from "../client/contract";
+import type { ClientInterface } from "../client/contract";
 import { Analytics } from "../../analytics";
 import {
   ChannelT,

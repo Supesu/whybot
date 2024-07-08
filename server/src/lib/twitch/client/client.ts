@@ -1,8 +1,8 @@
 // External Imports
-import { Client as TmiClient } from "tmi.js";
+import type { Client as TmiClient } from "tmi.js";
 
 // Internal Imports
-import { ClientInterface, OnMessageHandler } from "./contract";
+import type { ClientInterface, OnMessageHandler } from "./contract";
 import { Logger } from "../../../utils";
 
 export default class Client implements ClientInterface {

@@ -21,7 +21,7 @@ void (async () => {
   });
 
   //? intalize twitch client
-  Logger.debug("Initalizing Client");
+  // Logger.debug("Initalizing Client");
   const client = new Client(new TmiClient(config.convertToTmi()));
 
   //? Initalize Router

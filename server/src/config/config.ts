@@ -1,5 +1,5 @@
 // External Imports
-import { Options } from "tmi.js";
+import type { Options } from "tmi.js";
 
 // Internal Imports
 import { Logger } from "../utils";
